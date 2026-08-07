@@ -27,14 +27,13 @@ export const schoolProfile = {
   identity: [
     { label: "Nama sekolah", value: "SDN Danabhakti" },
     { label: "Status sekolah", value: "Sekolah Dasar Negeri" },
-    { label: "NPSN", value: "Akan dilengkapi" },
-    { label: "Akreditasi", value: "Akan dilengkapi" },
+    { label: "NPSN", value: "20207787" },
+    { label: "Akreditasi", value: "A" },
   ],
 };
 
 export const visionMission = {
-  vision:
-    "Visi resmi sekolah akan ditempatkan di sini sebagai arah utama penyelenggaraan pendidikan SDN Danabhakti.",
+  vision: "Terwujudnya peserta didik yang bertakwa, mandiri, kreatif, dan berwawasan lingkungan hidup.",
   missions: [
     "Misi sekolah poin pertama akan dilengkapi dari dokumen resmi.",
     "Misi sekolah poin kedua akan dilengkapi dari dokumen resmi.",
@@ -43,32 +42,41 @@ export const visionMission = {
   ],
 };
 
-export const organization = [
-  {
+export const organization = {
+  leader: {
     role: "Kepala Sekolah",
-    name: "Nama akan dilengkapi",
-    description: "Memimpin penyelenggaraan pendidikan dan pengembangan sekolah.",
-    level: 1,
+    name: "Lis Sutarsih, S.Pd",
   },
-  {
-    role: "Komite Sekolah",
-    name: "Nama akan dilengkapi",
-    description: "Mendukung kolaborasi antara sekolah, orang tua, dan masyarakat.",
-    level: 2,
-  },
-  {
-    role: "Koordinator Guru",
-    name: "Nama akan dilengkapi",
-    description: "Mengoordinasikan pelaksanaan pembelajaran dan kegiatan akademik.",
-    level: 2,
-  },
-  {
-    role: "Tenaga Kependidikan",
-    name: "Nama akan dilengkapi",
-    description: "Mendukung layanan administrasi dan operasional sekolah.",
-    level: 2,
-  },
-];
+  groups: [
+    {
+      title: "Guru Mata Pelajaran",
+      members: [
+        { role: "Guru Pendidikan Agama Islam (PAI)", name: "Nurjanah, S.Pd.I., M.Pd" },
+        { role: "Guru Pendidikan Agama Islam (PAI)", name: "Maya Nurmayanti, S.Pd" },
+        { role: "Guru PJOK", name: "Gumelar, S.Pd" },
+      ],
+    },
+    {
+      title: "Tenaga Kependidikan",
+      members: [
+        { role: "Operator Sekolah", name: "Rusli Suhendar Tubari" },
+        { role: "Tenaga Kependidikan", name: "Dwi Eka Supri Lestari" },
+        { role: "Tenaga Kependidikan", name: "Regina Anggun Lestari" },
+        { role: "Penjaga Sekolah", name: "Dadang Ruhimat" },
+      ],
+    },
+    {
+      title: "Guru Kelas",
+      members: [
+        { role: "Guru Kelas", name: "Iin Herlina, S.Pd" },
+        { role: "Guru Kelas", name: "Widiyawati, S.Pd" },
+        { role: "Guru Kelas", name: "Mela Fitriani, S.Pd" },
+        { role: "Guru Kelas", name: "Neng Rosimah, S.Pd" },
+        { role: "Guru Kelas", name: "Fersa Novyanty Hariansyah, S.Pd" },
+      ],
+    },
+  ],
+};
 
 export const facilities = [
   {
@@ -111,16 +119,17 @@ export const news = [
 ];
 
 export const gallery = [
-  { label: "Foto gedung sekolah", size: "wide" },
-  { label: "Foto kegiatan belajar", size: "square" },
-  { label: "Foto fasilitas", size: "tall" },
-  { label: "Foto kegiatan siswa", size: "square" },
-  { label: "Foto warga sekolah", size: "wide" },
+  { label: "Foto gedung sekolah", category: "Lingkungan sekolah" },
+  { label: "Foto kegiatan belajar", category: "Pembelajaran" },
+  { label: "Foto fasilitas", category: "Fasilitas" },
+  { label: "Foto kegiatan siswa", category: "Kegiatan siswa" },
+  { label: "Foto warga sekolah", category: "Warga sekolah" },
 ];
 
 export const contact = {
-  address: "Alamat lengkap sekolah akan dilengkapi",
+  address: "Jl. Raya Sapan No.32, Tegalluar, Kec. Bojongsoang, Kabupaten Bandung, Jawa Barat 40297",
   phone: "Nomor telepon akan dilengkapi",
-  email: "Email sekolah akan dilengkapi",
+  email: "sdn.danabakti@gmail.com",
   hours: "Jam pelayanan akan dilengkapi",
+  mapsUrl: "https://maps.app.goo.gl/5tCf1ZwZ8qXHFEwM7",
 };

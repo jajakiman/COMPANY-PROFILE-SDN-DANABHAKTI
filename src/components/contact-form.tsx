@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, m } from "motion/react";
 import { FormEvent, useState } from "react";
 
 export function ContactForm() {
@@ -31,8 +32,26 @@ export function ContactForm() {
         <textarea id="message" name="message" rows={5} placeholder="Tulis pesan secara singkat dan jelas" />
         <small>Form ini masih berupa tampilan awal dan belum mengirim data.</small>
       </div>
-      <button className="button" type="submit">Periksa Pengiriman</button>
-      <p className="form-status" role="status" aria-live="polite">{message}</p>
+      <m.button className="button motion-reveal" type="submit" whileTap={{ scale: 0.98 }}>
+        Periksa Pengiriman
+      </m.button>
+      <div className="form-status-slot">
+        <AnimatePresence initial={false}>
+          {message ? (
+            <m.p
+              className="form-status motion-reveal"
+              role="status"
+              aria-live="polite"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.24 }}
+            >
+              {message}
+            </m.p>
+          ) : null}
+        </AnimatePresence>
+      </div>
     </form>
   );
 }
