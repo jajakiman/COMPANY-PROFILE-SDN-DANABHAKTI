@@ -32,13 +32,21 @@ export const schoolProfile = {
   ],
 };
 
+export const heroSlides = [
+  { label: "Foto lingkungan sekolah", src: "/images/hero/dummy-hero-school.webp" },
+  { label: "Foto kegiatan belajar siswa", src: "/images/hero/dummy-hero-learning.webp" },
+  { label: "Foto kebersamaan warga sekolah", src: "/images/hero/dummy-hero-community.webp" },
+];
+
 export const visionMission = {
   vision: "Terwujudnya peserta didik yang bertakwa, mandiri, kreatif, dan berwawasan lingkungan hidup.",
   missions: [
-    "Misi sekolah poin pertama akan dilengkapi dari dokumen resmi.",
-    "Misi sekolah poin kedua akan dilengkapi dari dokumen resmi.",
-    "Misi sekolah poin ketiga akan dilengkapi dari dokumen resmi.",
-    "Misi sekolah poin keempat akan dilengkapi dari dokumen resmi.",
+    "Meningkatkan mutu pendidikan sesuai dengan tuntutan masyarakat dan perkembangan ilmu pengetahuan dan teknologi (IPTEK).",
+    "Meningkatkan prestasi di bidang seni dan budaya untuk memperkuat budaya bangsa.",
+    "Membentuk peserta didik yang berkepribadian, berbudi pekerti luhur, taat beribadah sesuai dengan agamanya, serta memiliki keimanan dan ketakwaan (IMTAK) yang kuat.",
+    "Membekali peserta didik agar memiliki wawasan global.",
+    "Menciptakan lingkungan sekolah yang sejuk, nyaman, indah, asri, dan berwawasan lingkungan hidup.",
+    "Meningkatkan kepedulian warga sekolah terhadap kelestarian sumber daya alam di lingkungan sekitar.",
   ],
 };
 
@@ -100,6 +108,7 @@ export const news = [
     category: "Kegiatan Sekolah",
     excerpt:
       "Dokumentasi dan ringkasan kegiatan terbaru akan ditampilkan setelah materi resmi tersedia.",
+    image: "/images/news/dummy-news-featured.webp",
     featured: true,
   },
   {
@@ -107,6 +116,7 @@ export const news = [
     date: "Tanggal akan dilengkapi",
     category: "Akademik",
     excerpt: "Pengumuman akademik akan dimuat pada area ini.",
+    image: "/images/news/dummy-news-academic.webp",
     featured: false,
   },
   {
@@ -114,16 +124,37 @@ export const news = [
     date: "Tanggal akan dilengkapi",
     category: "Warga Sekolah",
     excerpt: "Kabar guru, siswa, dan lingkungan sekolah akan dimuat di sini.",
+    image: "/images/news/dummy-news-community.webp",
     featured: false,
   },
 ];
 
 export const gallery = [
-  { label: "Foto gedung sekolah", category: "Lingkungan sekolah" },
-  { label: "Foto kegiatan belajar", category: "Pembelajaran" },
-  { label: "Foto fasilitas", category: "Fasilitas" },
-  { label: "Foto kegiatan siswa", category: "Kegiatan siswa" },
-  { label: "Foto warga sekolah", category: "Warga sekolah" },
+  {
+    label: "Foto gedung sekolah",
+    category: "Lingkungan sekolah",
+    src: "/images/gallery/dummy-gallery-building.webp",
+  },
+  {
+    label: "Foto kegiatan belajar",
+    category: "Pembelajaran",
+    src: "/images/gallery/dummy-gallery-learning.webp",
+  },
+  {
+    label: "Foto fasilitas",
+    category: "Fasilitas",
+    src: "/images/gallery/dummy-gallery-facility.webp",
+  },
+  {
+    label: "Foto kegiatan siswa",
+    category: "Kegiatan siswa",
+    src: "/images/gallery/dummy-gallery-activity.webp",
+  },
+  {
+    label: "Foto warga sekolah",
+    category: "Warga sekolah",
+    src: "/images/gallery/dummy-gallery-community.webp",
+  },
 ];
 
 export const contact = {
@@ -132,4 +163,5 @@ export const contact = {
   email: "sdn.danabakti@gmail.com",
   hours: "Jam pelayanan akan dilengkapi",
   mapsUrl: "https://maps.app.goo.gl/5tCf1ZwZ8qXHFEwM7",
+  mapsEmbedUrl: "https://www.google.com/maps?q=-6.9798795,107.6862452&z=17&output=embed",
 };

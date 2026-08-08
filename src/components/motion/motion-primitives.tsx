@@ -202,13 +202,6 @@ type MediaRevealProps = {
   scaleTo?: number;
 };
 
-const clipStates = {
-  top: "inset(100% 0 0 0)",
-  right: "inset(0 100% 0 0)",
-  bottom: "inset(0 0 100% 0)",
-  left: "inset(0 0 0 100%)",
-};
-
 export function MediaReveal({
   children,
   className,
@@ -219,22 +212,28 @@ export function MediaReveal({
   parallax = 0,
   scaleTo = 1,
 }: MediaRevealProps) {
-  const target = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target,
-    offset: ["start end", "end start"],
-  });
-  const y = useTransform(scrollYProgress, [0, 1], [parallax, -parallax]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, scaleTo]);
+  const distance = parallax || 24;
+  const offset =
+    direction === "left"
+      ? { x: -distance, y: 0 }
+      : direction === "right"
+        ? { x: distance, y: 0 }
+        : direction === "top"
+          ? { x: 0, y: -distance }
+          : { x: 0, y: distance };
+  const visibleState = {
+    opacity: 1,
+    x: 0,
+    y: 0,
+    scale: scaleTo,
+  };
 
   return (
     <m.div
-      ref={target}
       className={motionClassName(className, true)}
-      style={parallax || scaleTo !== 1 ? { y, scale } : undefined}
-      initial={{ opacity: 0, clipPath: clipStates[direction] }}
-      animate={eager ? { opacity: 1, clipPath: "inset(0 0 0 0)" } : undefined}
-      whileInView={eager ? undefined : { opacity: 1, clipPath: "inset(0 0 0 0)" }}
+      initial={{ opacity: 0, ...offset, scale: 1 }}
+      animate={eager ? visibleState : undefined}
+      whileInView={eager ? undefined : visibleState}
       whileHover={
         interactive
           ? { scale: 1.012, transition: { duration: 0.24, ease } }
