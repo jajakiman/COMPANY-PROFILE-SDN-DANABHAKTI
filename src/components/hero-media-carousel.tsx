@@ -10,6 +10,7 @@ import { MediaPlaceholder } from "@/components/media-placeholder";
 type HeroSlide = {
   label: string;
   src: string;
+  dummy?: boolean;
 };
 
 type HeroMediaCarouselProps = {
@@ -56,7 +57,7 @@ export function HeroMediaCarousel({ items, noteLabel, noteText }: HeroMediaCarou
               className="hero-carousel-media"
               priority={index === 0}
               sizes="(max-width: 767px) calc(100vw - 64px), (max-width: 1180px) 42vw, 520px"
-              dummy
+              dummy={item.dummy ?? false}
             />
           </SwiperSlide>
         ))}

@@ -8,6 +8,7 @@ type MediaPlaceholderProps = {
   sizes?: string;
   src?: string;
   dummy?: boolean;
+  showLabel?: boolean;
 };
 
 export function MediaPlaceholder({
@@ -17,10 +18,11 @@ export function MediaPlaceholder({
   sizes = "100vw",
   src,
   dummy = false,
+  showLabel = true,
 }: MediaPlaceholderProps) {
   if (src) {
     return (
-      <div className={`media-placeholder media-placeholder--image ${className}`}>
+      <div className={`media-placeholder media-placeholder--image ${!showLabel ? "media-placeholder--no-label" : ""} ${className}`}>
         <Image
           src={src}
           alt={label}
@@ -29,7 +31,7 @@ export function MediaPlaceholder({
           sizes={sizes}
           className="media-placeholder-image"
         />
-        <span>{label}</span>
+        {showLabel ? <span>{label}</span> : null}
         {dummy ? <small className="media-dummy-badge">Visual dummy</small> : null}
       </div>
     );

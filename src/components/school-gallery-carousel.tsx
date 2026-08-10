@@ -11,6 +11,7 @@ type GalleryItem = {
   label: string;
   category: string;
   src: string;
+  dummy?: boolean;
 };
 
 type SchoolGalleryCarouselProps = {
@@ -61,7 +62,7 @@ export function SchoolGalleryCarousel({ items }: SchoolGalleryCarouselProps) {
                 src={item.src}
                 className="gallery-slide-media"
                 sizes="(max-width: 767px) 82vw, (max-width: 1199px) 70vw, 860px"
-                dummy
+                dummy={item.dummy ?? false}
               />
               <figcaption className="gallery-slide-caption">
                 <span>{String(index + 1).padStart(2, "0")}</span>

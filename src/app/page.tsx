@@ -28,8 +28,10 @@ import {
 import { SiteHeader } from "@/components/site-header";
 import {
   contact,
+  extracurriculars,
   facilities,
   gallery,
+  habituations,
   heroSlides,
   news,
   organization,
@@ -84,7 +86,7 @@ export default function Home() {
           <div className="page-shell">
             <Reveal className="profile-intro" direction="left">
               <div>
-                <p className="section-label">Profil sekolah</p>
+                <p className="section-label">Profil sekolah • {schoolProfile.motto}</p>
                 <h2 id="profile-title">Mengenal SDN Danabhakti</h2>
               </div>
               <p className="profile-statement">{schoolProfile.introduction}</p>
@@ -94,22 +96,20 @@ export default function Home() {
               <MediaReveal className="profile-story" direction="right" parallax={20} scaleTo={1.018}>
                 <div className="profile-media-composition">
                   <MediaPlaceholder
-                    label="Foto utama profil sekolah"
-                    src="/images/profile/dummy-profile-school.webp"
+                    label="Foto Guru dan Tenaga Kependidikan SDN Danabhakti"
+                    src="/images/hero/foto guru di kantor.png"
                     className="profile-photo profile-photo-main"
                     sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1180px) 40vw, 520px"
-                    dummy
                   />
                   <MediaPlaceholder
-                    label="Foto detail lingkungan sekolah"
-                    src="/images/profile/dummy-profile-detail.webp"
+                    label="Foto Kegiatan Kebun Edukasi Sekolah"
+                    src="/images/hero/foto dikebun.png"
                     className="profile-photo profile-photo-detail"
                     sizes="(max-width: 767px) 36vw, (max-width: 1180px) 16vw, 190px"
-                    dummy
                   />
                 </div>
                 <div>
-                  <h3>Perjalanan sekolah</h3>
+                  <h3>Perjalanan & Identitas Sekolah</h3>
                   <p>{schoolProfile.history}</p>
                 </div>
               </MediaReveal>
@@ -130,7 +130,7 @@ export default function Home() {
               <blockquote className="principal-message">
                 <span className="quote-mark" aria-hidden="true">“</span>
                 <p>{schoolProfile.principalMessage}</p>
-                <footer>Kepala SDN Danabhakti</footer>
+                <footer>Kepala SDN Danabhakti — Lis Sutarsih, S.Pd.</footer>
               </blockquote>
             </Reveal>
           </div>
@@ -142,7 +142,7 @@ export default function Home() {
               <p className="section-label">Arah pendidikan</p>
               <h2 id="vision-title">Visi dan misi SDN Danabhakti</h2>
               <p>
-                Visi menetapkan tujuan bersama, sedangkan enam misi menjadi langkah sekolah untuk
+                Visi menetapkan tujuan bersama, sedangkan delapan misi menjadi langkah sekolah untuk
                 mewujudkannya.
               </p>
             </Reveal>
@@ -243,25 +243,22 @@ export default function Home() {
             >
               <div className="facility-media-mosaic">
                 <MediaPlaceholder
-                  label="Foto ruang belajar"
-                  src="/images/facilities/dummy-facility-classroom.webp"
+                  label="Foto kegiatan di ruang kelas"
+                  src="/images/hero/foto belajar dikelas.png"
                   className="facility-photo facility-photo-main"
                   sizes="(max-width: 767px) calc(100vw - 64px), (max-width: 1180px) 34vw, 430px"
-                  dummy
                 />
                 <MediaPlaceholder
-                  label="Foto perpustakaan"
-                  src="/images/facilities/dummy-facility-library.webp"
+                  label="Foto area kebun dan lingkungan sekolah"
+                  src="/images/hero/foto dikebun.png"
                   className="facility-photo facility-photo-library"
                   sizes="(max-width: 767px) 45vw, (max-width: 1180px) 24vw, 300px"
-                  dummy
                 />
                 <MediaPlaceholder
-                  label="Foto area kegiatan"
-                  src="/images/facilities/dummy-facility-activity.webp"
+                  label="Foto kegiatan siswa dan Pramuka"
+                  src="/images/hero/foto pramuka.png"
                   className="facility-photo facility-photo-activity"
                   sizes="(max-width: 767px) 45vw, (max-width: 1180px) 24vw, 300px"
-                  dummy
                 />
               </div>
               <Reveal className="facility-accent" direction="up" delay={0.38} amount={0.1} spring>
@@ -308,7 +305,7 @@ export default function Home() {
                     src={featuredNews.image}
                     className="news-featured-photo"
                     sizes="(max-width: 899px) calc(100vw - 40px), (max-width: 1180px) 55vw, 720px"
-                    dummy
+                    showLabel={false}
                   />
                 </MediaReveal>
                 <div className="featured-news-copy">
@@ -329,7 +326,7 @@ export default function Home() {
                       src={item.image}
                       className="news-small-photo"
                       sizes="(max-width: 767px) 110px, 150px"
-                      dummy
+                      showLabel={false}
                     />
                     <div>
                       <p className="news-category">{item.category}</p>
@@ -337,6 +334,36 @@ export default function Home() {
                       <p>{item.excerpt}</p>
                       <time>{item.date}</time>
                     </div>
+                  </RevealArticle>
+                ))}
+              </div>
+            </div>
+
+            <div className="program-block">
+              <Reveal direction="left" className="program-subheading">
+                <p className="section-label">Pengembangan siswa</p>
+                <h3>Kegiatan Ekstrakurikuler</h3>
+              </Reveal>
+              <div className="ekskul-grid">
+                {extracurriculars.map((ekskul, index) => (
+                  <RevealArticle key={ekskul.name} direction="up" delay={index * 0.05} className="ekskul-card">
+                    <h4>{ekskul.name}</h4>
+                    <p>{ekskul.description}</p>
+                  </RevealArticle>
+                ))}
+              </div>
+            </div>
+
+            <div className="program-block">
+              <Reveal direction="left" className="program-subheading">
+                <p className="section-label">Pembiasaan karakter</p>
+                <h3>Budaya Sekolah Harian & 7 Kebiasaan Anak Indonesia Hebat</h3>
+              </Reveal>
+              <div className="habits-grid">
+                {habituations.map((habit, index) => (
+                  <RevealArticle key={habit.title} direction="up" delay={index * 0.05} className="habit-card">
+                    <strong>{habit.title}</strong>
+                    <span>{habit.detail}</span>
                   </RevealArticle>
                 ))}
               </div>

@@ -402,6 +402,10 @@ h3 {
   background: linear-gradient(180deg, transparent, rgba(6, 42, 23, 0.78));
 }
 
+.media-placeholder--no-label::before {
+  display: none;
+}
+
 .media-placeholder--image::after {
   display: none;
 }
@@ -1614,6 +1618,84 @@ h3 {
 }
 
 /* Contact */
+.program-block {
+  margin-top: 56px;
+  padding-top: 48px;
+  border-top: 1px dashed var(--border);
+}
+
+.program-subheading {
+  margin-bottom: 28px;
+}
+
+.program-subheading h3 {
+  font-family: var(--font-outfit), Arial, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.ekskul-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.ekskul-card {
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.ekskul-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.ekskul-card h4 {
+  font-family: var(--font-outfit), Arial, sans-serif;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 8px;
+}
+
+.ekskul-card p {
+  font-size: 0.9rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.habits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.habit-card {
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.habit-card strong {
+  display: block;
+  font-family: var(--font-outfit), Arial, sans-serif;
+  font-size: 0.98rem;
+  color: var(--primary-dark);
+  margin-bottom: 4px;
+}
+
+.habit-card span {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+
 .contact-section {
   background: var(--surface-muted);
 }
