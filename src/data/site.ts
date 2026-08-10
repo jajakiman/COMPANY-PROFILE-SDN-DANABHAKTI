@@ -138,12 +138,15 @@ export const extracurriculars = [
   },
 ];
 
-export const habituations = [
-  { title: "Gerakan 3S", detail: "Senyum, Sapa, Salam setiap menyambut warga sekolah" },
-  { title: "Genit (Gerakan 5 Menit)", detail: "Memungut sampah & menjaga kebersihan lingkungan" },
-  { title: "Garasi (Gerakan Literasi)", detail: "Membaca buku 15 menit sebelum kegiatan belajar" },
-  { title: "Pagi Ceria & Senam", detail: "Senam Anak Indonesia Hebat, Indonesia Raya, & Berdoa bersama" },
-  { title: "One Day One Ayat", detail: "Pembiasaan membaca dan menghafal ayat Al-Qur'an harian" },
+export const schoolHabits = [
+  { title: "Gerakan 3S", detail: "Senyum, Sapa, Salam setiap menyambut kedatangan warga sekolah." },
+  { title: "Genit (Gerakan 5 Menit)", detail: "Memungut sampah & menjaga kebersihan lingkungan sebelum belajar." },
+  { title: "Garasi (Gerakan Literasi)", detail: "Membaca buku pilihan selama 15 menit sebelum jam pelajaran dimulai." },
+  { title: "One Day One Ayat", detail: "Pembiasaan membaca dan menghafal ayat Al-Qur'an secara rutin." },
+  { title: "Pertemuan Pagi Ceria", detail: "Senam Anak Indonesia Hebat, menyanyikan Indonesia Raya, & Berdoa bersama." },
+  { title: "Kegiatan Ibadah & Dhuha", detail: "Pelaksanaan Sholat Dhuha berjamaah dan pembinaan moral religius." },
+  { title: "Readathon & Upacara", detail: "Upacara bendera mingguan serta kegiatan membaca masal berkala." },
+  { title: "Prinsip 5R Lingkungan", detail: "Penerapan Refuse, Reduce, Reuse, Recycle, & Rot untuk mewujudkan budaya sekolah Adiwiyata yang hijau dan asri." },
 ];
 
 export const news = [

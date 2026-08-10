@@ -31,10 +31,10 @@ import {
   extracurriculars,
   facilities,
   gallery,
-  habituations,
   heroSlides,
   news,
   organization,
+  schoolHabits,
   schoolProfile,
   visionMission,
 } from "@/data/site";
@@ -356,12 +356,12 @@ export default function Home() {
 
             <div className="program-block">
               <Reveal direction="left" className="program-subheading">
-                <p className="section-label">Pembiasaan karakter</p>
-                <h3>Budaya Sekolah Harian & 7 Kebiasaan Anak Indonesia Hebat</h3>
+                <p className="section-label">Pembiasaan sekolah</p>
+                <h3>Budaya Harian & Mingguan SDN Danabhakti</h3>
               </Reveal>
               <div className="habits-grid">
-                {habituations.map((habit, index) => (
-                  <RevealArticle key={habit.title} direction="up" delay={index * 0.05} className="habit-card">
+                {schoolHabits.map((habit, index) => (
+                  <RevealArticle key={habit.title} direction="up" delay={index * 0.04} className="habit-card">
                     <strong>{habit.title}</strong>
                     <span>{habit.detail}</span>
                   </RevealArticle>
