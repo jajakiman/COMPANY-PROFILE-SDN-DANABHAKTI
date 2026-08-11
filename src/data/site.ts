@@ -9,10 +9,10 @@ export const siteConfig = {
 export const navigation = [
   { label: "Profil", href: "#profil" },
   { label: "Visi & Misi", href: "#visi-misi" },
-  { label: "Struktur", href: "#struktur" },
   { label: "Fasilitas", href: "#fasilitas" },
   { label: "Kegiatan", href: "#kegiatan" },
-  { label: "Kontak", href: "#kontak" },
+  { label: "Galeri", href: "#galeri" },
+  { label: "Struktur", href: "#struktur" },
 ];
 
 export const schoolProfile = {
@@ -39,14 +39,26 @@ export const schoolProfile = {
 };
 
 export const heroSlides = [
-  { label: "Kegiatan pembelajaran outdoor siswa", src: "/images/hero/foto belajar outdoor.png" },
-  { label: "Kegiatan ekstrakurikuler Pramuka", src: "/images/hero/foto pramuka.png" },
-  { label: "Suasana belajar mengajar di kelas", src: "/images/hero/foto belajar dikelas.png" },
+  {
+    label: "Kegiatan pembelajaran outdoor siswa",
+    src: "/images/hero/sekolah-belajar-outdoor.webp",
+    position: "center center",
+  },
+  {
+    label: "Suasana belajar mengajar di kelas",
+    src: "/images/hero/sekolah-belajar-kelas.webp",
+    position: "center 58%",
+  },
+  {
+    label: "Kegiatan ekstrakurikuler Pramuka",
+    src: "/images/hero/kegiatan-pramuka.webp",
+    position: "center center",
+  },
 ];
 
 export const visionMission = {
   motto: "AKSI (Agamis, Kreatif, Solidaritas, Indah)",
-  vision: "TERWUJUDNYA PESERTA DIDIK YANG BERTAKWA, MANDIRI, KREATIF DAN BERWAWASAN LINGKUNGAN HIDUP",
+  vision: "Terwujudnya peserta didik yang bertakwa, mandiri, kreatif, dan berwawasan lingkungan hidup.",
   missions: [
     "Meningkatkan mutu pendidikan sesuai dengan tuntutan masyarakat dan perkembangan ilmu pengetahuan dan teknologi (IPTEK).",
     "Meningkatkan prestasi di bidang seni budaya sehingga memperkuat budaya bangsa.",
@@ -74,6 +86,15 @@ export const organization = {
       ],
     },
     {
+      title: "Tenaga Kependidikan",
+      members: [
+        { role: "Operator Sekolah", name: "Rusli Suhendar Tubari" },
+        { role: "Tenaga Kependidikan", name: "Dwi Eka Supri Lestari" },
+        { role: "Tenaga Kependidikan", name: "Regina Anggun Lestari" },
+        { role: "Penjaga Sekolah", name: "Dadang Ruhimat" },
+      ],
+    },
+    {
       title: "Guru Kelas",
       members: [
         { role: "Guru Kelas", name: "Iin Herlina, S.Pd" },
@@ -84,17 +105,26 @@ export const organization = {
         { role: "Guru Kelas", name: "Oneng Kordiah, S.Pd" },
       ],
     },
-    {
-      title: "Tenaga Kependidikan",
-      members: [
-        { role: "Operator Sekolah", name: "Rusli Suhendar Tubari" },
-        { role: "Tenaga Kependidikan", name: "Dwi Eka Supri Lestari" },
-        { role: "Tenaga Kependidikan", name: "Regina Anggun Lestari" },
-        { role: "Penjaga Sekolah", name: "Dadang Ruhimat" },
-      ],
-    },
   ],
 };
+
+export const facilityPhotos = [
+  {
+    label: "Kegiatan pembelajaran di ruang kelas",
+    src: "/images/hero/sekolah-belajar-kelas.webp",
+    position: "center 58%",
+  },
+  {
+    label: "Kebun edukasi dan lingkungan sekolah",
+    src: "/images/hero/sekolah-kebun-edukasi.webp",
+    position: "center 46%",
+  },
+  {
+    label: "Kegiatan siswa dan Pramuka",
+    src: "/images/hero/kegiatan-pramuka.webp",
+    position: "center center",
+  },
+];
 
 export const facilities = [
   {
@@ -156,7 +186,7 @@ export const news = [
     category: "Kegiatan Siswa",
     excerpt:
       "Dokumentasi kebersamaan dan kedisiplinan siswa-siswi SDN Danabhakti dalam kegiatan Pramuka wajib.",
-    image: "/images/hero/foto pramuka.png",
+    image: "/images/hero/kegiatan-pramuka.webp",
     featured: true,
   },
   {
@@ -164,7 +194,7 @@ export const news = [
     date: "Kegiatan Akademik",
     category: "Akademik",
     excerpt: "Suasana belajar mengajar yang aktif dan menyenangkan berbasis Kurikulum Merdeka.",
-    image: "/images/hero/foto belajar dikelas.png",
+    image: "/images/hero/sekolah-belajar-kelas.webp",
     featured: false,
   },
   {
@@ -172,7 +202,7 @@ export const news = [
     date: "Warga Sekolah",
     category: "Warga Sekolah",
     excerpt: "Kekompakan 15 pendidik dan tenaga kependidikan dalam mengawal mutu sekolah.",
-    image: "/images/hero/foto guru di kantor.png",
+    image: "/images/hero/guru-tenaga-kependidikan.webp",
     featured: false,
   },
 ];
@@ -181,33 +211,45 @@ export const gallery = [
   {
     label: "Kegiatan belajar outdoor di lingkungan sekolah",
     category: "Lingkungan Sekolah",
-    src: "/images/hero/foto belajar outdoor.png",
+    src: "/images/hero/sekolah-belajar-outdoor.webp",
+    position: "center center",
   },
   {
     label: "Proses pembelajaran aktif di dalam ruang kelas",
     category: "Pembelajaran",
-    src: "/images/hero/foto belajar dikelas.png",
+    src: "/images/hero/sekolah-belajar-kelas.webp",
+    position: "center 58%",
   },
   {
     label: "Area kebun dan edukasi lingkungan hidup",
     category: "Fasilitas & Lingkungan",
-    src: "/images/hero/foto dikebun.png",
+    src: "/images/hero/sekolah-kebun-edukasi.webp",
+    position: "center 46%",
   },
   {
     label: "Kegiatan ekstrakurikuler Pramuka siswa",
     category: "Kegiatan Siswa",
-    src: "/images/hero/foto pramuka.png",
+    src: "/images/hero/kegiatan-pramuka.webp",
+    position: "center center",
   },
   {
     label: "Bapak & Ibu Guru SDN Danabhakti",
     category: "Warga Sekolah",
-    src: "/images/hero/foto guru di kantor.png",
+    src: "/images/hero/guru-tenaga-kependidikan.webp",
+    position: "center 42%",
   },
 ];
 
+const whatsappMessage = "Halo, saya menghubungi SDN Danabhakti melalui website.";
+
+export const whatsapp = {
+  displayNumber: "0812 2017 8360",
+  url: `https://wa.me/6281220178360?text=${encodeURIComponent(whatsappMessage)}`,
+};
+
 export const contact = {
   address: "Jl. Raya Sapan Gudang RT 03/RW 01, Desa Tegalluar, Kec. Bojongsoang, Kab. Bandung, Jawa Barat 40287",
-  phone: "Informasi Pendaftaran / Kontak Sekolah",
+  phone: whatsapp.displayNumber,
   email: "sdn.danabakti@gmail.com",
   hours: "Senin - Jumat: 06.30 - 15.15 WIB (5 Hari Kerja)",
   mapsUrl: "https://maps.app.goo.gl/5tCf1ZwZ8qXHFEwM7",

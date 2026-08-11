@@ -11,6 +11,7 @@ type HeroSlide = {
   label: string;
   src: string;
   dummy?: boolean;
+  position?: string;
 };
 
 type HeroMediaCarouselProps = {
@@ -55,9 +56,10 @@ export function HeroMediaCarousel({ items, noteLabel, noteText }: HeroMediaCarou
               label={item.label}
               src={item.src}
               className="hero-carousel-media"
-              priority={index === 0}
+              loading={index === 0 ? "eager" : "lazy"}
               sizes="(max-width: 767px) calc(100vw - 64px), (max-width: 1180px) 42vw, 520px"
               dummy={item.dummy ?? false}
+              imagePosition={item.position}
             />
           </SwiperSlide>
         ))}

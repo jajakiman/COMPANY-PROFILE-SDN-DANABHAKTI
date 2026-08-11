@@ -1,10 +1,38 @@
 "use client";
 
-import { m, useScroll, useTransform } from "motion/react";
+import { m, useScroll, useSpring, useTransform } from "motion/react";
 import type { ReactNode } from "react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
+const viewportMargin = "-8% 0px -8% 0px";
+
+function useResponsiveMotionDistance(distance: number) {
+  const [viewport, setViewport] = useState<"mobile" | "tablet" | "desktop" | null>(null);
+
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const tablet = window.matchMedia("(max-width: 1100px)");
+    const updateViewport = () => {
+      setViewport(mobile.matches ? "mobile" : tablet.matches ? "tablet" : "desktop");
+    };
+
+    updateViewport();
+    mobile.addEventListener("change", updateViewport);
+    tablet.addEventListener("change", updateViewport);
+    return () => {
+      mobile.removeEventListener("change", updateViewport);
+      tablet.removeEventListener("change", updateViewport);
+    };
+  }, []);
+
+  if (viewport === null) return 0;
+  const sign = Math.sign(distance) || 1;
+  const magnitude = Math.abs(distance);
+  if (viewport === "mobile") return sign * Math.min(magnitude * 0.25, 14);
+  if (viewport === "tablet") return sign * Math.min(magnitude * 0.55, 32);
+  return distance;
+}
 
 function motionClassName(className?: string, media = false) {
   return ["motion-reveal", media ? "motion-media" : "", className]
@@ -22,9 +50,10 @@ type RevealProps = {
   amount?: number;
   spring?: boolean;
   eager?: boolean;
+  replay?: boolean;
 };
 
-function hiddenState(direction: Direction, distance = 38) {
+function hiddenState(direction: Direction, distance = 56) {
   if (direction === "left") return { opacity: 0, x: -distance };
   if (direction === "right") return { opacity: 0, x: distance };
   if (direction === "down") return { opacity: 0, y: -distance };
@@ -33,7 +62,7 @@ function hiddenState(direction: Direction, distance = 38) {
 }
 
 function revealTransition(delay: number) {
-  return { duration: 0.72, delay, ease };
+  return { duration: 0.9, delay, ease };
 }
 
 export function Reveal({
@@ -44,6 +73,7 @@ export function Reveal({
   amount = 0.2,
   spring = false,
   eager = false,
+  replay = false,
 }: RevealProps) {
   return (
     <m.div
@@ -51,10 +81,10 @@ export function Reveal({
       initial={hiddenState(direction)}
       animate={eager ? { opacity: 1, x: 0, y: 0 } : undefined}
       whileInView={eager ? undefined : { opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount }}
+      viewport={{ once: !replay, amount, margin: viewportMargin }}
       transition={
         spring
-          ? { type: "spring", stiffness: 240, damping: 24, delay }
+          ? { type: "spring", stiffness: 160, damping: 22, delay }
           : revealTransition(delay)
       }
     >
@@ -69,14 +99,15 @@ export function RevealArticle({
   direction = "up",
   delay = 0,
   amount = 0.2,
+  replay = false,
 }: RevealProps) {
   return (
     <m.article
       className={motionClassName(className)}
-      initial={hiddenState(direction)}
+      initial={hiddenState(direction, 32)}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount }}
-      transition={revealTransition(delay)}
+      viewport={{ once: !replay, amount, margin: viewportMargin }}
+      transition={{ duration: 0.78, delay, ease }}
     >
       {children}
     </m.article>
@@ -89,14 +120,15 @@ export function RevealListItem({
   direction = "right",
   delay = 0,
   amount = 0.5,
+  replay = false,
 }: RevealProps) {
   return (
     <m.li
       className={motionClassName(className)}
-      initial={hiddenState(direction, 22)}
+      initial={hiddenState(direction, 24)}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount }}
-      transition={{ duration: 0.58, delay, ease }}
+      viewport={{ once: !replay, amount, margin: viewportMargin }}
+      transition={{ duration: 0.72, delay, ease }}
     >
       {children}
     </m.li>
@@ -109,6 +141,7 @@ type StaggerProps = {
   delay?: number;
   eager?: boolean;
   parallax?: number;
+  replay?: boolean;
 };
 
 export function Stagger({
@@ -117,13 +150,16 @@ export function Stagger({
   delay = 0,
   eager = false,
   parallax = 0,
+  replay = false,
 }: StaggerProps) {
+  const responsiveParallax = useResponsiveMotionDistance(parallax);
   const target = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target,
     offset: ["start start", "end start"],
   });
-  const y = useTransform(scrollYProgress, [0, 1], [0, -parallax]);
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, responsiveParallax]);
+  const y = useSpring(parallaxY, { stiffness: 90, damping: 24, mass: 0.35 });
 
   return (
     <m.div
@@ -133,13 +169,13 @@ export function Stagger({
       initial="hidden"
       animate={eager ? "visible" : undefined}
       whileInView={eager ? undefined : "visible"}
-      viewport={{ once: true, amount: 0.25 }}
+      viewport={{ once: !replay, amount: 0.25, margin: viewportMargin }}
       variants={{
         hidden: {},
         visible: {
           transition: {
             delayChildren: delay,
-            staggerChildren: 0.09,
+            staggerChildren: 0.12,
           },
         },
       }}
@@ -154,11 +190,11 @@ export function StaggerItem({ children, className }: Pick<StaggerProps, "childre
     <m.div
       className={motionClassName(className)}
       variants={{
-        hidden: { opacity: 0, y: 32 },
+        hidden: { opacity: 0, y: 48 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.68, ease },
+          transition: { duration: 0.86, ease },
         },
       }}
     >
@@ -172,18 +208,25 @@ type MaskRevealProps = {
   className?: string;
   delay?: number;
   eager?: boolean;
+  replay?: boolean;
 };
 
-export function MaskReveal({ children, className, delay = 0, eager = false }: MaskRevealProps) {
+export function MaskReveal({
+  children,
+  className,
+  delay = 0,
+  eager = false,
+  replay = false,
+}: MaskRevealProps) {
   return (
     <div className={`motion-mask ${className ?? ""}`}>
       <m.div
         className="motion-reveal"
-        initial={{ y: "105%" }}
-        animate={eager ? { y: 0 } : undefined}
-        whileInView={eager ? undefined : { y: 0 }}
-        viewport={{ once: true, amount: 0.7 }}
-        transition={{ duration: 0.72, delay, ease }}
+        initial={{ opacity: 0, y: "110%" }}
+        animate={eager ? { opacity: 1, y: 0 } : undefined}
+        whileInView={eager ? undefined : { opacity: 1, y: 0 }}
+        viewport={{ once: !replay, amount: 0.7, margin: viewportMargin }}
+        transition={{ duration: 0.95, delay, ease }}
       >
         {children}
       </m.div>
@@ -198,8 +241,9 @@ type MediaRevealProps = {
   direction?: "top" | "right" | "bottom" | "left";
   interactive?: boolean;
   eager?: boolean;
-  parallax?: number;
-  scaleTo?: number;
+  revealDistance?: number;
+  scrollParallax?: number;
+  replay?: boolean;
 };
 
 export function MediaReveal({
@@ -209,29 +253,42 @@ export function MediaReveal({
   direction = "bottom",
   interactive = false,
   eager = false,
-  parallax = 0,
-  scaleTo = 1,
+  revealDistance = 56,
+  scrollParallax = 0,
+  replay = false,
 }: MediaRevealProps) {
-  const distance = parallax || 24;
+  const responsiveParallax = useResponsiveMotionDistance(scrollParallax);
+  const target = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target,
+    offset: ["start end", "end start"],
+  });
+  const rawParallaxY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [responsiveParallax / 2, -responsiveParallax / 2],
+  );
+  const parallaxY = useSpring(rawParallaxY, { stiffness: 90, damping: 24, mass: 0.35 });
   const offset =
     direction === "left"
-      ? { x: -distance, y: 0 }
+      ? { x: -revealDistance, y: 0 }
       : direction === "right"
-        ? { x: distance, y: 0 }
+        ? { x: revealDistance, y: 0 }
         : direction === "top"
-          ? { x: 0, y: -distance }
-          : { x: 0, y: distance };
+          ? { x: 0, y: -revealDistance }
+          : { x: 0, y: revealDistance };
   const visibleState = {
     opacity: 1,
     x: 0,
     y: 0,
-    scale: scaleTo,
+    scale: 1,
   };
 
   return (
     <m.div
+      ref={target}
       className={motionClassName(className, true)}
-      initial={{ opacity: 0, ...offset, scale: 1 }}
+      initial={{ opacity: 0, ...offset, scale: 0.94 }}
       animate={eager ? visibleState : undefined}
       whileInView={eager ? undefined : visibleState}
       whileHover={
@@ -239,37 +296,46 @@ export function MediaReveal({
           ? { scale: 1.012, transition: { duration: 0.24, ease } }
           : undefined
       }
-      viewport={{ once: true, amount: 0.16 }}
-      transition={{ duration: 0.9, delay, ease }}
+      viewport={{ once: !replay, amount: 0.16, margin: viewportMargin }}
+      transition={{ duration: 1.1, delay, ease }}
     >
-      {children}
+      {scrollParallax ? (
+        <m.div className="motion-parallax-layer" style={{ y: parallaxY }}>
+          {children}
+        </m.div>
+      ) : children}
     </m.div>
   );
 }
 
-type ParallaxProps = {
+type ScrollParallaxProps = {
   children: ReactNode;
   className?: string;
   distance?: number;
 };
 
-export function Parallax({ children, className, distance = 28 }: ParallaxProps) {
-  const target = useRef<HTMLSpanElement>(null);
+export function ScrollParallax({ children, className, distance = 28 }: ScrollParallaxProps) {
+  const responsiveDistance = useResponsiveMotionDistance(distance);
+  const target = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target,
     offset: ["start end", "end start"],
   });
-  const y = useTransform(scrollYProgress, [0, 1], [distance, -distance]);
+  const rawY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [responsiveDistance / 2, -responsiveDistance / 2],
+  );
+  const y = useSpring(rawY, { stiffness: 90, damping: 24, mass: 0.35 });
 
   return (
-    <m.span
+    <m.div
       ref={target}
-      className={className}
+      className={["motion-parallax-layer", className].filter(Boolean).join(" ")}
       style={{ y }}
-      aria-hidden="true"
     >
       {children}
-    </m.span>
+    </m.div>
   );
 }
 
@@ -277,10 +343,10 @@ export function ConnectorLine() {
   return (
     <m.div
       className="tree-connectors motion-reveal"
-      initial={{ opacity: 0, y: -8 }}
+      initial={{ opacity: 0, y: -24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.5 }}
-      transition={{ duration: 0.72, delay: 0.22, ease }}
+      viewport={{ once: true, amount: 0.5, margin: viewportMargin }}
+      transition={{ duration: 0.85, delay: 0.18, ease }}
       aria-hidden="true"
     >
       <span className="tree-connector-leader" />

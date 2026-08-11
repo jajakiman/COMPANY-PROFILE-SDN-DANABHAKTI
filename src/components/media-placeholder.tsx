@@ -4,21 +4,23 @@ import Image from "next/image";
 type MediaPlaceholderProps = {
   label: string;
   className?: string;
-  priority?: boolean;
+  loading?: "eager" | "lazy";
   sizes?: string;
   src?: string;
   dummy?: boolean;
   showLabel?: boolean;
+  imagePosition?: string;
 };
 
 export function MediaPlaceholder({
   label,
   className = "",
-  priority = false,
+  loading = "lazy",
   sizes = "100vw",
   src,
   dummy = false,
   showLabel = true,
+  imagePosition = "center",
 }: MediaPlaceholderProps) {
   if (src) {
     return (
@@ -27,9 +29,10 @@ export function MediaPlaceholder({
           src={src}
           alt={label}
           fill
-          priority={priority}
+          loading={loading}
           sizes={sizes}
           className="media-placeholder-image"
+          style={{ objectPosition: imagePosition }}
         />
         {showLabel ? <span>{label}</span> : null}
         {dummy ? <small className="media-dummy-badge">Visual dummy</small> : null}
@@ -42,7 +45,6 @@ export function MediaPlaceholder({
       className={`media-placeholder ${className}`}
       role="img"
       aria-label={`${label}. Materi foto belum tersedia.`}
-      data-priority={priority || undefined}
     >
       <ImageSquare aria-hidden="true" size={28} weight="duotone" />
       <span>{label}</span>
