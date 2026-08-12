@@ -1,7 +1,17 @@
-import { WhatsappLogo } from "@phosphor-icons/react/ssr";
+"use client";
+
+import { usePathname } from "next/navigation";
+import { WhatsappLogo } from "@phosphor-icons/react";
 import { whatsapp } from "@/data/site";
 
 export function WhatsAppButton() {
+  const pathname = usePathname();
+
+  // Hide WhatsApp button on login and admin pages as requested by user
+  if (pathname.startsWith("/admin") || pathname === "/login") {
+    return null;
+  }
+
   return (
     <a
       className="whatsapp-button"

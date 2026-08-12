@@ -2,18 +2,19 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowSquareOut,
-  CalendarBlank,
+  BookOpenText,
   Clock,
   EnvelopeSimple,
   MapPin,
   Phone,
+  User,
   UsersThree,
 } from "@phosphor-icons/react/ssr";
 import Image from "next/image";
-import { FacilityPhotoCarousel } from "@/components/facility-photo-carousel";
 import { HeroMediaCarousel } from "@/components/hero-media-carousel";
 import { MediaPlaceholder } from "@/components/media-placeholder";
 import { SchoolGalleryCarousel } from "@/components/school-gallery-carousel";
+import { SchoolNewsCarousel } from "@/components/school-news-carousel";
 import {
   ConnectorLine,
   MediaReveal,
@@ -21,26 +22,71 @@ import {
   Reveal,
   RevealArticle,
   RevealListItem,
-  ScrollParallax,
   Stagger,
   StaggerItem,
 } from "@/components/motion/motion-primitives";
 import { SiteHeader } from "@/components/site-header";
+import { db } from "@/lib/db";
 import {
   contact,
   extracurriculars,
-  facilityPhotos,
   facilities,
-  gallery,
+  gallery as initialGallery,
   heroSlides,
-  news,
+  news as initialNews,
   organization,
   schoolHabits,
   schoolProfile,
   visionMission,
 } from "@/data/site";
 
-export default function Home() {
+export const revalidate = 0;
+
+export default async function Home() {
+  let newsList = initialNews;
+  let galleryList = initialGallery;
+
+  try {
+    const dbNews = await db.news.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    if (dbNews.length > 0) {
+      const sortedDbNews = [...dbNews].sort((a: any, b: any) => {
+        const orderA = a.featuredOrder || 0;
+        const orderB = b.featuredOrder || 0;
+        if (orderA > 0 && orderB > 0) return orderA - orderB;
+        if (orderA > 0) return -1;
+        if (orderB > 0) return 1;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      newsList = sortedDbNews.map((item: any) => ({
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        date: item.date,
+        excerpt: item.excerpt,
+        image: item.image,
+        featured: Boolean(item.featuredOrder && item.featuredOrder > 0),
+        featuredOrder: item.featuredOrder || 0,
+      }));
+    }
+
+    const dbGallery = await db.gallery.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    if (dbGallery.length > 0) {
+      galleryList = dbGallery.map((item: any) => ({
+        label: item.label,
+        category: item.category,
+        src: item.src,
+        position: "center",
+      }));
+    }
+  } catch (e) {
+    console.error("DB fetch fallback to static data:", e);
+  }
+
   return (
     <>
       <a className="skip-link" href="#main-content">Lewati ke konten utama</a>
@@ -49,9 +95,9 @@ export default function Home() {
       <main id="main-content">
         <section className="hero" id="beranda" aria-labelledby="hero-title">
           <div className="page-shell hero-grid">
-            <Stagger className="hero-copy" delay={0.1} parallax={-72} eager replay={false}>
+            <Stagger className="hero-copy" delay={0.08} parallax={54} eager>
               <StaggerItem><p className="hero-kicker">Selamat datang di SDN Danabhakti</p></StaggerItem>
-              <MaskReveal delay={0.18} eager><h1 id="hero-title">{schoolProfile.heroTitle}</h1></MaskReveal>
+              <MaskReveal delay={0.14} eager><h1 id="hero-title">{schoolProfile.heroTitle}</h1></MaskReveal>
               <StaggerItem><p className="hero-lead">{schoolProfile.heroDescription}</p></StaggerItem>
               <StaggerItem className="hero-actions">
                 <a className="button" href="#profil">
@@ -66,10 +112,9 @@ export default function Home() {
             <MediaReveal
               className="hero-visual"
               direction="left"
-              delay={0.3}
-              scrollParallax={48}
+              delay={0.18}
+              scrollParallax={34}
               eager
-              replay={false}
             >
               <HeroMediaCarousel
                 items={heroSlides}
@@ -91,53 +136,54 @@ export default function Home() {
             </Reveal>
 
             <div className="profile-content">
-              <MediaReveal className="profile-story" direction="right" delay={0.12}>
-                <ScrollParallax className="profile-media-motion" distance={28}>
-                  <div className="profile-media-composition">
-                    <MediaPlaceholder
-                      label="Foto Guru dan Tenaga Kependidikan SDN Danabhakti"
-                      src="/images/hero/guru-tenaga-kependidikan.webp"
-                      className="profile-photo profile-photo-main"
-                      sizes="(max-width: 767px) calc(100vw - 32px), (max-width: 900px) 58vw, (max-width: 1180px) 36vw, 480px"
-                      imagePosition="center 42%"
-                    />
-                    <MediaPlaceholder
-                      label="Foto Kegiatan Kebun Edukasi Sekolah"
-                      src="/images/hero/sekolah-kebun-edukasi.webp"
-                      className="profile-photo profile-photo-detail"
-                      sizes="(max-width: 767px) calc(100vw - 32px), (max-width: 900px) 58vw, (max-width: 1180px) 36vw, 480px"
-                      imagePosition="center 45%"
-                    />
-                  </div>
-                </ScrollParallax>
-                <div className="profile-story-copy">
-                  <h3>Perjalanan & Identitas Sekolah</h3>
-                  <p>{schoolProfile.history}</p>
-                </div>
-              </MediaReveal>
+              {/* Column 1: Photos */}
+              <div className="profile-media-composition">
+                <MediaPlaceholder
+                  label="Foto Guru dan Tenaga Kependidikan SDN Danabhakti"
+                  src="/images/hero/foto guru di kantor.png"
+                  className="profile-photo profile-photo-main"
+                  sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1180px) 40vw, 520px"
+                />
+                <MediaPlaceholder
+                  label="Foto Kegiatan Kebun Edukasi Sekolah"
+                  src="/images/hero/foto dikebun.png"
+                  className="profile-photo profile-photo-detail"
+                  sizes="(max-width: 767px) 36vw, (max-width: 1180px) 16vw, 190px"
+                />
+              </div>
 
-              <Reveal direction="right" delay={0.24}>
-                <dl className="identity-list">
-                  {schoolProfile.identity.map((item) => (
-                    <div key={item.label}>
-                      <dt>{item.label}</dt>
-                      <dd>{item.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </Reveal>
+              {/* Column 2: History Copy */}
+              <div className="profile-story-copy">
+                <h3>Perjalanan & Identitas Sekolah</h3>
+                <p>{schoolProfile.history}</p>
+              </div>
+
+              {/* Column 3: Vertical Identity List */}
+              <dl className="identity-list">
+                {schoolProfile.identity.map((item) => (
+                  <div key={item.label}>
+                    <dt>{item.label}</dt>
+                    <dd>{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
 
-            <Reveal className="principal-message-layout" direction="up" delay={0.12} amount={0.4}>
-              <MediaPlaceholder
-                label="Foto Kepala Sekolah"
-                className="principal-photo-placeholder"
-              />
-              <blockquote className="principal-message">
-                <span className="quote-mark" aria-hidden="true">“</span>
-                <p>{schoolProfile.principalMessage}</p>
-                <footer>Kepala SDN Danabhakti — Lis Sutarsih, S.Pd.</footer>
-              </blockquote>
+            <Reveal direction="up" amount={0.3}>
+              <div className="principal-message-layout">
+                <div className="principal-photo-silhouette">
+                  <div className="silhouette-icon-wrapper">
+                    <User size={80} weight="light" color="#ffffff" />
+                  </div>
+                  <span>Foto Kepala Sekolah</span>
+                  <small>Materi resmi belum tersedia</small>
+                </div>
+                <blockquote className="principal-message">
+                  <span className="quote-mark" aria-hidden="true">“</span>
+                  <p>{schoolProfile.principalMessage}</p>
+                  <footer>Kepala SDN Danabhakti — Lis Sutarsih, S.Pd.</footer>
+                </blockquote>
+              </div>
             </Reveal>
           </div>
         </section>
@@ -154,33 +200,33 @@ export default function Home() {
             </Reveal>
 
             <div className="vision-grid">
-              <Reveal className="vision-card" direction="left" delay={0.12} amount={0.25}>
+              <Reveal className="vision-card" direction="left" amount={0.25}>
                 <span className="vision-card-label">Visi sekolah</span>
                 <p className="vision-statement">{visionMission.vision}</p>
                 <small>Arah utama penyelenggaraan pendidikan SDN Danabhakti.</small>
               </Reveal>
 
-              <div className="mission-list">
-                <Reveal className="mission-list-heading" direction="right" delay={0.24}>
+              <Reveal className="mission-list" direction="right" delay={0.12}>
+                <div className="mission-list-heading">
                   <div>
                     <span>Langkah bersama</span>
                     <h3>Misi sekolah</h3>
                   </div>
                   <strong>{visionMission.missions.length} komitmen utama</strong>
-                </Reveal>
+                </div>
                 <ol>
                   {visionMission.missions.map((mission, index) => (
                     <RevealListItem
                       className="mission-item"
                       key={mission}
-                      delay={0.34 + index * 0.1}
+                      delay={index * 0.07}
                     >
                       <span>{String(index + 1).padStart(2, "0")}</span>
                       <p>{mission}</p>
                     </RevealListItem>
                   ))}
                 </ol>
-              </div>
+              </Reveal>
             </div>
           </div>
         </section>
@@ -190,11 +236,29 @@ export default function Home() {
             <MediaReveal
               className="facilities-visual"
               direction="right"
-              delay={0.08}
-              scrollParallax={-36}
+              scrollParallax={24}
             >
-              <FacilityPhotoCarousel items={facilityPhotos} />
-              <div className="facility-accent">
+              <div className="facility-media-mosaic">
+                <MediaPlaceholder
+                  label="Foto kegiatan di ruang kelas"
+                  src="/images/hero/foto belajar dikelas.png"
+                  className="facility-photo facility-photo-main"
+                  sizes="(max-width: 767px) calc(100vw - 64px), (max-width: 1180px) 34vw, 430px"
+                />
+                <MediaPlaceholder
+                  label="Foto area kebun dan lingkungan sekolah"
+                  src="/images/hero/foto dikebun.png"
+                  className="facility-photo facility-photo-library"
+                  sizes="(max-width: 767px) 45vw, (max-width: 1180px) 24vw, 300px"
+                />
+                <MediaPlaceholder
+                  label="Foto kegiatan siswa dan Pramuka"
+                  src="/images/hero/foto pramuka.png"
+                  className="facility-photo facility-photo-activity"
+                  sizes="(max-width: 767px) 45vw, (max-width: 1180px) 24vw, 300px"
+                />
+              </div>
+              <Reveal className="facility-accent" direction="up" delay={0.38} amount={0.1} spring>
                 <Image
                   src="/images/brand/logo-sdn-danabhakti-full.webp"
                   alt=""
@@ -202,20 +266,13 @@ export default function Home() {
                   height={72}
                   className="facility-accent-logo"
                 />
-              </div>
-            </MediaReveal>
-            <div className="facilities-copy">
-              <Reveal direction="right" delay={0.18}>
-                <h2 id="facilities-title">Ruang untuk belajar dan berkembang</h2>
               </Reveal>
+            </MediaReveal>
+            <Reveal className="facilities-copy" direction="right" delay={0.1}>
+              <h2 id="facilities-title">Ruang untuk belajar dan berkembang</h2>
               <div className="facility-list">
                 {facilities.map((facility, index) => (
-                  <RevealArticle
-                    key={facility.title}
-                    direction="right"
-                    delay={0.3 + index * 0.1}
-                    amount={0.5}
-                  >
+                  <RevealArticle key={facility.title} direction="right" delay={index * 0.08} amount={0.5}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
                     <div>
                       <h3>{facility.title}</h3>
@@ -224,7 +281,7 @@ export default function Home() {
                   </RevealArticle>
                 ))}
               </div>
-            </div>
+            </Reveal>
           </div>
         </section>
 
@@ -232,38 +289,15 @@ export default function Home() {
           <div className="page-shell">
             <Reveal className="section-heading" direction="left">
               <div>
-                <p className="section-label">Kegiatan</p>
+                <p className="section-label">Berita dan kegiatan</p>
                 <h2 id="news-title">Kabar dari sekolah</h2>
               </div>
             </Reveal>
 
-            <div className="news-grid">
-              {news.map((item, index) => (
-                <RevealArticle
-                  className="news-card"
-                  key={item.title}
-                  direction="up"
-                  delay={0.14 + index * 0.12}
-                  amount={0.2}
-                >
-                  <MediaPlaceholder
-                    label={`Foto ${item.title.toLowerCase()}`}
-                    src={item.image || undefined}
-                    className="news-card-media"
-                    sizes="(max-width: 900px) calc(100vw - 32px), (max-width: 1280px) 30vw, 390px"
-                    showLabel={false}
-                  />
-                  <div className="news-card-copy">
-                    <div className="news-meta">
-                      <span>{item.category}</span>
-                      <time><CalendarBlank aria-hidden="true" size={16} />{item.date}</time>
-                    </div>
-                    <h3>{item.title}</h3>
-                    <p>{item.excerpt}</p>
-                  </div>
-                </RevealArticle>
-              ))}
-            </div>
+            {/* Dynamic News Carousel with Left/Right Arrow Navigation */}
+            <Reveal direction="up" delay={0.14}>
+              <SchoolNewsCarousel items={newsList} />
+            </Reveal>
 
             <div className="program-block">
               <Reveal direction="left" delay={0.08} className="program-subheading">
@@ -314,7 +348,7 @@ export default function Home() {
               <p>Dokumentasi ruang, kegiatan, dan kebersamaan warga SDN Danabhakti.</p>
             </Reveal>
             <Reveal direction="up" delay={0.16} amount={0.12}>
-              <SchoolGalleryCarousel items={gallery} />
+              <SchoolGalleryCarousel items={galleryList} />
             </Reveal>
           </div>
         </section>
@@ -328,7 +362,7 @@ export default function Home() {
 
             <div className="organization-tree">
               <ConnectorLine />
-              <RevealArticle className="organization-card organization-leader" direction="up" delay={0.12}>
+              <RevealArticle className="organization-card organization-leader" direction="up">
                 <div className="avatar-placeholder" aria-hidden="true">
                   <UsersThree size={28} weight="duotone" />
                 </div>
@@ -340,25 +374,23 @@ export default function Home() {
 
               <div className="organization-branches">
                 {organization.groups.map((group, groupIndex) => (
-                  <div
+                  <Reveal
                     className="organization-branch"
                     key={group.title}
+                    direction={groupIndex === 0 ? "left" : groupIndex === 2 ? "right" : "up"}
+                    delay={0.12 + groupIndex * 0.12}
                   >
-                    <Reveal
-                      className="organization-branch-heading"
-                      direction={groupIndex === 0 ? "left" : groupIndex === 2 ? "right" : "up"}
-                      delay={0.28 + groupIndex * 0.12}
-                    >
+                    <div className="organization-branch-heading">
                       <span>{String(groupIndex + 2).padStart(2, "0")}</span>
                       <h3>{group.title}</h3>
-                    </Reveal>
+                    </div>
                     <div className="organization-member-list">
                       {group.members.map((member, memberIndex) => (
                         <RevealArticle
                           className="organization-card organization-member"
                           key={`${member.role}-${member.name}`}
                           direction="up"
-                          delay={0.42 + groupIndex * 0.12 + Math.min(memberIndex, 4) * 0.1}
+                          delay={memberIndex * 0.08}
                           amount={0.35}
                         >
                           <div>
@@ -368,7 +400,7 @@ export default function Home() {
                         </RevealArticle>
                       ))}
                     </div>
-                  </div>
+                  </Reveal>
                 ))}
               </div>
             </div>
@@ -465,7 +497,7 @@ export default function Home() {
           </div>
         </Reveal>
         <div className="page-shell footer-bottom">
-          <span>© {new Date().getFullYear()} SDN Danabhakti</span>
+          <span>© {new Date().getFullYear()} SDN Danabhakti • <a href="/login" className="footer-admin-link">Kelola</a></span>
           <a href="#beranda">Kembali ke atas</a>
         </div>
       </footer>

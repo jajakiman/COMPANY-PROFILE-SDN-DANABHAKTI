@@ -1,0 +1,40 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  name      String   @default("Admin Sekolah")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model News {
+  id            String   @id @default(uuid())
+  title         String
+  category      String
+  date          String
+  excerpt       String
+  content       String?
+  image         String
+  featured      Boolean  @default(false)
+  featuredOrder Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Gallery {
+  id        String   @id @default(uuid())
+  label     String
+  category  String
+  src       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
