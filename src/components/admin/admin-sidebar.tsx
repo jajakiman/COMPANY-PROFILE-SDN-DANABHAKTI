@@ -10,21 +10,18 @@ import {
   ImageSquare,
   ArrowSquareOut,
   SignOut,
-  SidebarSimple,
   X,
 } from "@phosphor-icons/react";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 
 type AdminSidebarProps = {
   collapsed: boolean;
-  onToggleCollapse: () => void;
   mobileOpen: boolean;
   onCloseMobile: () => void;
 };
 
 export function AdminSidebar({
   collapsed,
-  onToggleCollapse,
   mobileOpen,
   onCloseMobile,
 }: AdminSidebarProps) {
@@ -65,17 +62,13 @@ export function AdminSidebar({
       )}
 
       <aside
+        id="admin-sidebar"
         className={`admin-sidebar ${collapsed ? "collapsed" : ""} ${
           mobileOpen ? "mobile-open" : ""
         }`}
       >
-        {/* Header Layout:
-            - When Expanded: Logo & Title on left, Minimize Toggle Button on right (side-by-side).
-            - When Collapsed: Logo on top, Minimize Toggle Button centered BELOW logo.
-        */}
         <div className="admin-sidebar-header">
           {collapsed ? (
-            /* COLLAPSED STATE: Logo on Top, Toggle Icon BELOW Logo */
             <div className="admin-collapsed-header-box">
               <Link href="/admin" className="admin-brand" onClick={onCloseMobile}>
                 <Image
@@ -86,17 +79,8 @@ export function AdminSidebar({
                   className="admin-brand-logo"
                 />
               </Link>
-              <button
-                type="button"
-                onClick={onToggleCollapse}
-                className="admin-collapse-toggle desktop-only"
-                title="Buka Sidebar"
-              >
-                <SidebarSimple size={18} weight="bold" />
-              </button>
             </div>
           ) : (
-            /* EXPANDED STATE: Logo & Text on Left, Toggle Icon on Right */
             <div className="admin-expanded-header-box">
               <Link href="/admin" className="admin-brand" onClick={onCloseMobile}>
                 <Image
@@ -114,17 +98,9 @@ export function AdminSidebar({
 
               <button
                 type="button"
-                onClick={onToggleCollapse}
-                className="admin-collapse-toggle desktop-only"
-                title="Mengecilkan Sidebar"
-              >
-                <SidebarSimple size={18} weight="bold" />
-              </button>
-
-              <button
-                type="button"
                 onClick={onCloseMobile}
                 className="admin-close-toggle mobile-only"
+                aria-label="Tutup menu sidebar"
               >
                 <X size={18} weight="bold" />
               </button>
@@ -181,10 +157,7 @@ export function AdminSidebar({
           {!collapsed && (
             <div className="admin-user-info">
               <div className="admin-user-avatar">AD</div>
-              <div>
-                <strong>Admin Sekolah</strong>
-                <small>Lis Sutarsih, S.Pd</small>
-              </div>
+              <strong>Admin Sekolah</strong>
             </div>
           )}
 

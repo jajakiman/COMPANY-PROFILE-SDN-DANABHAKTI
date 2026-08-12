@@ -5,8 +5,11 @@ import { Plus, PencilSimple, Trash, ImageSquare } from "@phosphor-icons/react";
 import { GalleryModal, type GalleryData } from "@/components/admin/gallery-modal";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { SuccessDialog } from "@/components/admin/success-dialog";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function AdminGaleriPage() {
+  const router = useRouter();
   const [galleryList, setGalleryList] = useState<GalleryData[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [loading, setLoading] = useState(true);
@@ -20,7 +23,6 @@ export default function AdminGaleriPage() {
 
   // Success dialog states
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
-  const [successTitle, setSuccessTitle] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   const fetchGallery = async () => {
@@ -39,7 +41,25 @@ export default function AdminGaleriPage() {
   };
 
   useEffect(() => {
-    fetchGallery();
+    let cancelled = false;
+
+    async function loadGallery() {
+      try {
+        const res = await fetch("/api/gallery");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setGalleryList(data);
+      } catch (err) {
+        console.error("Error fetching gallery:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void loadGallery();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleOpenAddModal = () => {
@@ -52,8 +72,9 @@ export default function AdminGaleriPage() {
     setModalOpen(true);
   };
 
-  const handleModalSuccess = () => {
-    fetchGallery();
+  const handleModalSuccess = async () => {
+    await fetchGallery();
+    router.refresh();
     if (selectedGallery) {
       setSuccessMessage("Foto galeri berhasil disimpan!");
     } else {
@@ -74,7 +95,8 @@ export default function AdminGaleriPage() {
     try {
       const res = await fetch(`/api/gallery/${photoToDelete.id}`, { method: "DELETE" });
       if (res.ok) {
-        fetchGallery();
+        await fetchGallery();
+        router.refresh();
         setDeleteDialogOpen(false);
         setPhotoToDelete(null);
         setSuccessMessage("Foto galeri berhasil dihapus!");
@@ -149,7 +171,7 @@ export default function AdminGaleriPage() {
           {filteredItems.map((item) => (
             <div key={item.id} className="admin-gallery-card">
               <div className="admin-gallery-image-box">
-                <img src={item.src} alt={item.label} />
+                <Image src={item.src} alt={item.label} fill sizes="(max-width: 639px) calc(100vw - 32px), 280px" unoptimized />
                 <span className="admin-gallery-category-badge">{item.category}</span>
               </div>
 
@@ -181,12 +203,15 @@ export default function AdminGaleriPage() {
       )}
 
       {/* Pop-Up Modal for Add / Edit Gallery */}
-      <GalleryModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSuccess={handleModalSuccess}
-        initialData={selectedGallery}
-      />
+      {modalOpen ? (
+        <GalleryModal
+          key={selectedGallery?.id ?? "new"}
+          isOpen
+          onClose={() => setModalOpen(false)}
+          onSuccess={handleModalSuccess}
+          initialData={selectedGallery}
+        />
+      ) : null}
 
       {/* Animated Confirmation Dialog for Deleting Gallery Photo */}
       <ConfirmDialog

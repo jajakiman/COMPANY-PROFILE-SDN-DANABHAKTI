@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+import { deleteBlobIfUnused, isAllowedMediaUrl, isBlobUrl } from "@/lib/media";
+import { hasValidOrigin } from "@/lib/request";
 
 export async function GET() {
   try {
@@ -15,21 +18,24 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  let uploadedImage: string | null = null;
+
   try {
     const session = await getSession();
-    if (!session) {
+    if (!session || !hasValidOrigin(request)) {
       return NextResponse.json({ error: "Akses tidak diizinkan." }, { status: 401 });
     }
 
     const data = await request.json();
     const { label, category, src } = data;
 
-    if (!label || !category || !src) {
+    if (![label, category].every((value) => typeof value === "string" && value.trim()) || !isAllowedMediaUrl(src)) {
       return NextResponse.json(
-        { error: "Judul Foto, Kategori, dan File Gambar wajib diisi." },
+        { error: "Judul foto, kategori, dan URL gambar yang valid wajib diisi." },
         { status: 400 }
       );
     }
+    if (isBlobUrl(src)) uploadedImage = src.trim();
 
     const created = await db.gallery.create({
       data: {
@@ -39,9 +45,13 @@ export async function POST(request: Request) {
       },
     });
 
+    revalidatePath("/");
+    revalidatePath("/admin");
+
     return NextResponse.json({ success: true, data: created });
   } catch (error) {
     console.error("Create gallery error:", error);
+    await deleteBlobIfUnused(uploadedImage);
     return NextResponse.json({ error: "Gagal menambah foto galeri baru." }, { status: 500 });
   }
 }

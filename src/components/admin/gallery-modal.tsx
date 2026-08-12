@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, UploadSimple, CheckCircle, Warning } from "@phosphor-icons/react";
+import { useState } from "react";
+import { CaretDown, X, UploadSimple, CheckCircle, Warning } from "@phosphor-icons/react";
+import Image from "next/image";
+import { upload } from "@vercel/blob/client";
 
 export type GalleryData = {
   id?: string;
@@ -13,35 +15,19 @@ export type GalleryData = {
 type GalleryModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: () => void | Promise<void>;
   initialData?: GalleryData | null;
 };
 
 export function GalleryModal({ isOpen, onClose, onSuccess, initialData }: GalleryModalProps) {
-  const [label, setLabel] = useState("");
-  const [category, setCategory] = useState("Kegiatan Siswa");
-  const [src, setSrc] = useState("");
+  const [label, setLabel] = useState(initialData?.label ?? "");
+  const [category, setCategory] = useState(initialData?.category ?? "Kegiatan Siswa");
+  const [src] = useState(initialData?.src ?? "");
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
+  const [imagePreview, setImagePreview] = useState<string>(initialData?.src ?? "");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    if (initialData) {
-      setLabel(initialData.label);
-      setCategory(initialData.category || "Kegiatan Siswa");
-      setSrc(initialData.src);
-      setImagePreview(initialData.src);
-    } else {
-      setLabel("");
-      setCategory("Kegiatan Siswa");
-      setSrc("");
-      setImagePreview("");
-    }
-    setSelectedFile(null);
-    setErrorMessage("");
-  }, [initialData, isOpen]);
 
   if (!isOpen) return null;
 
@@ -68,24 +54,20 @@ export function GalleryModal({ isOpen, onClose, onSuccess, initialData }: Galler
     e.preventDefault();
     setLoading(true);
     setErrorMessage("");
+    let uploadedBlobUrl: string | null = null;
 
     try {
       let finalSrcUrl = src;
 
       if (selectedFile) {
-        const uploadFormData = new FormData();
-        uploadFormData.append("file", selectedFile);
-
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: uploadFormData,
+        const safeName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const blob = await upload(`school-media/${Date.now()}-${safeName}`, selectedFile, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+          contentType: selectedFile.type,
         });
-
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) {
-          throw new Error(uploadData.error || "Gagal mengunggah foto.");
-        }
-        finalSrcUrl = uploadData.url;
+        finalSrcUrl = blob.url;
+        uploadedBlobUrl = blob.url;
       }
 
       if (!finalSrcUrl) {
@@ -113,9 +95,16 @@ export function GalleryModal({ isOpen, onClose, onSuccess, initialData }: Galler
         throw new Error(data.error || "Gagal menyimpan foto galeri.");
       }
 
-      onSuccess();
+      await onSuccess();
       onClose();
     } catch (err: unknown) {
+      if (uploadedBlobUrl) {
+        await fetch("/api/upload", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: uploadedBlobUrl }),
+        }).catch(() => undefined);
+      }
       const msg = err instanceof Error ? err.message : "Terjadi kesalahan.";
       setErrorMessage(msg);
     } finally {
@@ -125,10 +114,10 @@ export function GalleryModal({ isOpen, onClose, onSuccess, initialData }: Galler
 
   return (
     <div className="admin-modal-backdrop">
-      <div className="admin-modal-container">
+      <div className="admin-modal-container" role="dialog" aria-modal="true" aria-labelledby="gallery-modal-title">
         <div className="admin-modal-header">
-          <h3>{initialData ? "Edit Foto Galeri" : "Tambah Foto Galeri Baru"}</h3>
-          <button type="button" onClick={onClose} className="admin-modal-close">
+          <h3 id="gallery-modal-title">{initialData ? "Edit Foto Galeri" : "Tambah Foto Galeri Baru"}</h3>
+          <button type="button" onClick={onClose} className="admin-modal-close" aria-label="Tutup form galeri">
             <X size={20} weight="bold" />
           </button>
         </div>
@@ -155,18 +144,23 @@ export function GalleryModal({ isOpen, onClose, onSuccess, initialData }: Galler
 
           <div className="admin-form-group">
             <label htmlFor="gallery-category">Kategori Galeri</label>
-            <select
-              id="gallery-category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="Kegiatan Siswa">Kegiatan Siswa</option>
-              <option value="Prestasi">Prestasi</option>
-              <option value="Pembelajaran">Pembelajaran</option>
-              <option value="Fasilitas">Fasilitas</option>
-              <option value="Warga Sekolah">Warga Sekolah</option>
-              <option value="Lingkungan Sekolah">Lingkungan Sekolah</option>
-            </select>
+            <div className="admin-select-wrapper">
+              <select
+                id="gallery-category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="Kegiatan Siswa">Kegiatan Siswa</option>
+                <option value="Prestasi">Prestasi</option>
+                <option value="Pembelajaran">Pembelajaran</option>
+                <option value="Fasilitas">Fasilitas</option>
+                <option value="Warga Sekolah">Warga Sekolah</option>
+                <option value="Lingkungan Sekolah">Lingkungan Sekolah</option>
+              </select>
+              <span className="admin-select-icon" aria-hidden="true">
+                <CaretDown size={18} weight="bold" />
+              </span>
+            </div>
           </div>
 
           <div className="admin-form-group">
@@ -174,7 +168,7 @@ export function GalleryModal({ isOpen, onClose, onSuccess, initialData }: Galler
             <div className="admin-file-upload-box">
               {imagePreview ? (
                 <div className="admin-file-preview">
-                  <img src={imagePreview} alt="Preview" />
+                  <Image src={imagePreview} alt="Preview foto galeri" width={640} height={360} unoptimized />
                   <label htmlFor="gallery-file-change" className="admin-file-change-btn">
                     Ubah Foto
                   </label>

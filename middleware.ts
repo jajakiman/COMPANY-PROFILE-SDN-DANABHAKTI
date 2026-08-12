@@ -1,9 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? "sdn-danabhakti-super-secret-key-2026"
-);
+const jwtSecret = process.env.JWT_SECRET;
+if (process.env.NODE_ENV === "production" && (!jwtSecret || jwtSecret.length < 32)) {
+  throw new Error("JWT_SECRET production wajib berisi minimal 32 karakter.");
+}
+
+const JWT_SECRET = new TextEncoder().encode(jwtSecret ?? "development-only-jwt-secret-change-me");
+const JWT_ISSUER = "sdn-danabhakti-cms";
+const JWT_AUDIENCE = "sdn-danabhakti-admin";
 
 function clearAuthCookies(response: NextResponse) {
   response.cookies.set("admin_session", "", {
@@ -11,13 +16,7 @@ function clearAuthCookies(response: NextResponse) {
     maxAge: 0,
     expires: new Date(0),
   });
-  response.cookies.set("last_admin_activity", "", {
-    path: "/",
-    maxAge: 0,
-    expires: new Date(0),
-  });
   response.cookies.delete("admin_session");
-  response.cookies.delete("last_admin_activity");
 }
 
 export async function middleware(request: NextRequest) {
@@ -28,7 +27,10 @@ export async function middleware(request: NextRequest) {
   if (pathname === "/login") {
     if (token) {
       try {
-        await jwtVerify(token, JWT_SECRET);
+        await jwtVerify(token, JWT_SECRET, {
+          issuer: JWT_ISSUER,
+          audience: JWT_AUDIENCE,
+        });
         // Valid active session: redirect logged-in admin directly to /admin
         return NextResponse.redirect(new URL("/admin", request.url));
       } catch {
@@ -49,7 +51,10 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      await jwtVerify(token, JWT_SECRET);
+      await jwtVerify(token, JWT_SECRET, {
+        issuer: JWT_ISSUER,
+        audience: JWT_AUDIENCE,
+      });
       // Valid session -> allow access to admin
       return NextResponse.next();
     } catch {

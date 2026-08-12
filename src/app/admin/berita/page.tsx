@@ -5,8 +5,12 @@ import { Plus, PencilSimple, Trash, Newspaper, Star, CalendarBlank } from "@phos
 import { NewsModal, type NewsData } from "@/components/admin/news-modal";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { SuccessDialog } from "@/components/admin/success-dialog";
+import { formatNewsDate } from "@/lib/news";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function AdminBeritaPage() {
+  const router = useRouter();
   const [newsList, setNewsList] = useState<NewsData[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -19,7 +23,6 @@ export default function AdminBeritaPage() {
 
   // Success dialog states
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
-  const [successTitle, setSuccessTitle] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   const fetchNews = async () => {
@@ -38,7 +41,25 @@ export default function AdminBeritaPage() {
   };
 
   useEffect(() => {
-    fetchNews();
+    let cancelled = false;
+
+    async function loadNews() {
+      try {
+        const res = await fetch("/api/news");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setNewsList(data);
+      } catch (err) {
+        console.error("Error fetching news:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void loadNews();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleOpenAddModal = () => {
@@ -51,8 +72,9 @@ export default function AdminBeritaPage() {
     setModalOpen(true);
   };
 
-  const handleModalSuccess = () => {
-    fetchNews();
+  const handleModalSuccess = async () => {
+    await fetchNews();
+    router.refresh();
     if (selectedNews) {
       setSuccessMessage("Berita berhasil disimpan!");
     } else {
@@ -73,7 +95,8 @@ export default function AdminBeritaPage() {
     try {
       const res = await fetch(`/api/news/${newsToDelete.id}`, { method: "DELETE" });
       if (res.ok) {
-        fetchNews();
+        await fetchNews();
+        router.refresh();
         setDeleteDialogOpen(false);
         setNewsToDelete(null);
         setSuccessMessage("Berita berhasil dihapus!");
@@ -129,7 +152,7 @@ export default function AdminBeritaPage() {
             .map((item) => (
               <div key={item.id} className="admin-news-card">
                 <div className="admin-news-card-image">
-                  <img src={item.image} alt={item.title} />
+                  <Image src={item.image} alt={item.title} fill sizes="(max-width: 639px) calc(100vw - 32px), 320px" unoptimized />
                   <span className="admin-news-category-badge">{item.category}</span>
                   {item.featuredOrder && item.featuredOrder > 0 ? (
                     <span className="admin-news-featured-badge">
@@ -141,7 +164,7 @@ export default function AdminBeritaPage() {
                 <div className="admin-news-card-body">
                   <div className="admin-news-meta">
                     <CalendarBlank size={14} />
-                    <span>{item.date}</span>
+                    <span>{formatNewsDate(item.date)}</span>
                   </div>
                   <h3>{item.title}</h3>
                   <p className="admin-news-excerpt">{item.excerpt}</p>
@@ -171,13 +194,16 @@ export default function AdminBeritaPage() {
       )}
 
       {/* Pop-Up Modal for Add / Edit News */}
-      <NewsModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSuccess={handleModalSuccess}
-        initialData={selectedNews}
-        allNewsList={newsList}
-      />
+      {modalOpen ? (
+        <NewsModal
+          key={selectedNews?.id ?? "new"}
+          isOpen
+          onClose={() => setModalOpen(false)}
+          onSuccess={handleModalSuccess}
+          initialData={selectedNews}
+          allNewsList={newsList}
+        />
+      ) : null}
 
       {/* Animated Confirmation Dialog for Deleting News */}
       <ConfirmDialog

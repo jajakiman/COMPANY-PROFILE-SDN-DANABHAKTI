@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { LockKey, User, ArrowLeft, Warning, Eye, EyeSlash } from "@phosphor-icons/react";
 
 export default function LoginPage() {
@@ -53,10 +54,10 @@ export default function LoginPage() {
   return (
     <div className="login-shell">
       <div className="login-card">
-        <a href="/" className="login-back-link">
+        <Link href="/" className="login-back-link">
           <ArrowLeft size={16} weight="bold" />
           <span>Kembali ke Halaman Utama</span>
-        </a>
+        </Link>
 
         <div className="login-header">
           <Image

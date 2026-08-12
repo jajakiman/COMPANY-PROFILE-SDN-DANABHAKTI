@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, UploadSimple, CheckCircle, Warning, Star } from "@phosphor-icons/react";
+import { useState } from "react";
+import { CaretDown, CheckCircle, LockSimple, Star, UploadSimple, Warning, X } from "@phosphor-icons/react";
+import { isISODate, NEWS_CATEGORIES, todayISODate } from "@/lib/news";
+import Image from "next/image";
+import { upload } from "@vercel/blob/client";
 
 export type NewsData = {
   id?: string;
@@ -18,22 +21,26 @@ export type NewsData = {
 type NewsModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: () => void | Promise<void>;
   initialData?: NewsData | null;
   allNewsList?: NewsData[];
 };
 
 export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList = [] }: NewsModalProps) {
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("Kegiatan Siswa");
-  const [date, setDate] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [content, setContent] = useState("");
-  const [image, setImage] = useState("");
-  const [featuredOrder, setFeaturedOrder] = useState<number>(0);
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [category, setCategory] = useState(initialData?.category ?? "Kegiatan Siswa");
+  const [date, setDate] = useState(
+    initialData ? (isISODate(initialData.date) ? initialData.date : "") : todayISODate()
+  );
+  const [excerpt, setExcerpt] = useState(initialData?.excerpt ?? "");
+  const [content, setContent] = useState(initialData?.content ?? "");
+  const [image] = useState(initialData?.image ?? "");
+  const [featuredOrder, setFeaturedOrder] = useState<number>(
+    initialData?.featuredOrder ?? (initialData?.featured ? 1 : 0)
+  );
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
+  const [imagePreview, setImagePreview] = useState<string>(initialData?.image ?? "");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -44,29 +51,9 @@ export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList
     return occupant ? occupant.title : null;
   };
 
-  useEffect(() => {
-    if (initialData) {
-      setTitle(initialData.title);
-      setCategory(initialData.category || "Kegiatan Siswa");
-      setDate(initialData.date || "");
-      setExcerpt(initialData.excerpt);
-      setContent(initialData.content || "");
-      setImage(initialData.image);
-      setImagePreview(initialData.image);
-      setFeaturedOrder(initialData.featuredOrder || (initialData.featured ? 1 : 0));
-    } else {
-      setTitle("");
-      setCategory("Kegiatan Siswa");
-      setDate(new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }));
-      setExcerpt("");
-      setContent("");
-      setImage("");
-      setImagePreview("");
-      setFeaturedOrder(0);
-    }
-    setSelectedFile(null);
-    setErrorMessage("");
-  }, [initialData, isOpen]);
+  const isFeatured = featuredOrder > 0;
+  const availableFeaturedSlots = [1, 2, 3].filter((slotNum) => !getOccupantTitle(slotNum));
+  const featuredSlotsFull = !isFeatured && availableFeaturedSlots.length === 0;
 
   if (!isOpen) return null;
 
@@ -93,24 +80,20 @@ export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList
     e.preventDefault();
     setLoading(true);
     setErrorMessage("");
+    let uploadedBlobUrl: string | null = null;
 
     try {
       let finalImageUrl = image;
 
       if (selectedFile) {
-        const uploadFormData = new FormData();
-        uploadFormData.append("file", selectedFile);
-
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: uploadFormData,
+        const safeName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const blob = await upload(`school-media/${Date.now()}-${safeName}`, selectedFile, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+          contentType: selectedFile.type,
         });
-
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok) {
-          throw new Error(uploadData.error || "Gagal mengunggah gambar.");
-        }
-        finalImageUrl = uploadData.url;
+        finalImageUrl = blob.url;
+        uploadedBlobUrl = blob.url;
       }
 
       if (!finalImageUrl) {
@@ -120,7 +103,7 @@ export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList
       const payload = {
         title,
         category,
-        date: date || "Dokumentasi Kegiatan",
+        date,
         excerpt,
         content,
         image: finalImageUrl,
@@ -142,9 +125,16 @@ export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList
         throw new Error(data.error || "Gagal menyimpan data berita.");
       }
 
-      onSuccess();
+      await onSuccess();
       onClose();
     } catch (err: unknown) {
+      if (uploadedBlobUrl) {
+        await fetch("/api/upload", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: uploadedBlobUrl }),
+        }).catch(() => undefined);
+      }
       const msg = err instanceof Error ? err.message : "Terjadi kesalahan.";
       setErrorMessage(msg);
     } finally {
@@ -154,10 +144,10 @@ export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList
 
   return (
     <div className="admin-modal-backdrop">
-      <div className="admin-modal-container">
+      <div className="admin-modal-container" role="dialog" aria-modal="true" aria-labelledby="news-modal-title">
         <div className="admin-modal-header">
-          <h3>{initialData ? "Edit Berita Sekolah" : "Tambah Berita Baru"}</h3>
-          <button type="button" onClick={onClose} className="admin-modal-close">
+          <h3 id="news-modal-title">{initialData ? "Edit Berita Sekolah" : "Tambah Berita Baru"}</h3>
+          <button type="button" onClick={onClose} className="admin-modal-close" aria-label="Tutup form berita">
             <X size={20} weight="bold" />
           </button>
         </div>
@@ -185,28 +175,34 @@ export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList
           <div className="admin-form-row">
             <div className="admin-form-group">
               <label htmlFor="news-category">Kategori Berita</label>
-              <select
-                id="news-category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option value="Kegiatan Siswa">Kegiatan Siswa</option>
-                <option value="Akademik">Akademik</option>
-                <option value="Warga Sekolah">Warga Sekolah</option>
-                <option value="Prestasi">Prestasi</option>
-                <option value="Pengumuman">Pengumuman</option>
-              </select>
+              <div className="admin-select-wrapper">
+                <select
+                  id="news-category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  {NEWS_CATEGORIES.map((item) => (
+                    <option key={item} value={item}>{item}</option>
+                  ))}
+                </select>
+                <span className="admin-select-icon" aria-hidden="true">
+                  <CaretDown size={18} weight="bold" />
+                </span>
+              </div>
             </div>
 
             <div className="admin-form-group">
-              <label htmlFor="news-date">Tanggal / Keterangan</label>
+              <label htmlFor="news-date">Tanggal Berita *</label>
               <input
                 id="news-date"
-                type="text"
-                placeholder="Contoh: 10 Agustus 2026"
+                type="date"
+                required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
               />
+              {initialData && !isISODate(initialData.date) ? (
+                <small>Tanggal lama belum valid. Pilih tanggal sebelum menyimpan.</small>
+              ) : null}
             </div>
           </div>
 
@@ -238,7 +234,7 @@ export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList
             <div className="admin-file-upload-box">
               {imagePreview ? (
                 <div className="admin-file-preview">
-                  <img src={imagePreview} alt="Preview" />
+                  <Image src={imagePreview} alt="Preview foto berita" width={640} height={360} unoptimized />
                   <label htmlFor="news-file-change" className="admin-file-change-btn">
                     Ubah Foto
                   </label>
@@ -267,32 +263,81 @@ export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList
             </div>
           </div>
 
-          {/* Featured Order Selection Dropdown (Slot 1, 2, 3) */}
-          <div className="admin-form-group">
-            <label htmlFor="featured-order-select">
-              <Star size={16} weight="fill" className="text-amber-500" /> Posisi Berita Utama (Maksimal 3 Berita)
+          <fieldset className="featured-control">
+            <legend>Penempatan Berita</legend>
+            <label className="featured-toggle">
+              <span className="featured-toggle-copy">
+                <span className="featured-toggle-icon" aria-hidden="true">
+                  <Star size={18} weight={isFeatured ? "fill" : "regular"} />
+                </span>
+                <span>
+                  <strong>Jadikan Berita Utama</strong>
+                  <small>Tampilkan berita ini pada urutan prioritas di halaman depan.</small>
+                </span>
+              </span>
+              <input
+                type="checkbox"
+                checked={isFeatured}
+                disabled={featuredSlotsFull}
+                onChange={(event) => setFeaturedOrder(event.target.checked ? (availableFeaturedSlots[0] ?? 0) : 0)}
+              />
+              <span className="featured-toggle-track" aria-hidden="true">
+                <span />
+              </span>
             </label>
-            <select
-              id="featured-order-select"
-              value={featuredOrder}
-              onChange={(e) => setFeaturedOrder(Number(e.target.value))}
-            >
-              <option value={0}>Bukan Berita Utama (Tampil Normal)</option>
-              {[1, 2, 3].map((slotNum) => {
-                const occupantTitle = getOccupantTitle(slotNum);
-                return (
-                  <option key={slotNum} value={slotNum} disabled={Boolean(occupantTitle)}>
-                    {occupantTitle
-                      ? `⭐ Berita Utama - Urutan Ke-${slotNum} (Terpakai: "${occupantTitle}")`
-                      : `⭐ Berita Utama - Urutan Ke-${slotNum}`}
-                  </option>
-                );
-              })}
-            </select>
-            <small style={{ color: "#666", marginTop: "2px" }}>
-              Pilih urutan 1, 2, atau 3 jika ingin menjadikan berita ini sebagai Berita Utama di website.
-            </small>
-          </div>
+
+            {featuredSlotsFull ? (
+              <p className="featured-slots-full">Semua urutan sedang terpakai. Ubah berita utama lain terlebih dahulu.</p>
+            ) : null}
+
+            {isFeatured ? (
+              <div className="featured-slot-section">
+                <div className="featured-slot-heading">
+                  <strong>Pilih urutan tampil</strong>
+                  <small>Maksimal tiga berita utama</small>
+                </div>
+                <div className="featured-slot-grid" role="radiogroup" aria-label="Urutan berita utama">
+                  {[1, 2, 3].map((slotNum) => {
+                    const occupantTitle = getOccupantTitle(slotNum);
+                    const selected = featuredOrder === slotNum;
+                    const occupied = Boolean(occupantTitle);
+
+                    return (
+                      <button
+                        key={slotNum}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        disabled={occupied}
+                        className={`featured-slot ${selected ? "selected" : ""} ${occupied ? "occupied" : ""}`}
+                        onClick={() => setFeaturedOrder(slotNum)}
+                      >
+                        <span className="featured-slot-number">{String(slotNum).padStart(2, "0")}</span>
+                        <span className="featured-slot-status">
+                          {occupied ? <LockSimple size={13} weight="bold" /> : selected ? <CheckCircle size={13} weight="fill" /> : null}
+                          {occupied ? "Terpakai" : selected ? "Dipilih" : "Tersedia"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {getOccupantTitle(1) || getOccupantTitle(2) || getOccupantTitle(3) ? (
+                  <div className="featured-occupants">
+                    {[1, 2, 3].map((slotNum) => {
+                      const occupantTitle = getOccupantTitle(slotNum);
+                      return occupantTitle ? (
+                        <p key={slotNum}>
+                          <span>Urutan {slotNum}</span>
+                          <strong title={occupantTitle}>{occupantTitle}</strong>
+                        </p>
+                      ) : null;
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </fieldset>
 
           <div className="admin-modal-actions">
             <button type="button" onClick={onClose} className="admin-btn-secondary">

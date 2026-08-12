@@ -1,69 +1,61 @@
+import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { getSession } from "@/lib/auth";
+import { deleteBlobIfUnused, isBlobUrl } from "@/lib/media";
+import { hasValidOrigin } from "@/lib/request";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export async function POST(request: Request) {
   try {
-    // Check admin authentication
-    const session = await getSession();
-    if (!session) {
-      return NextResponse.json(
-        { error: "Akses tidak diizinkan. Silakan login terlebih dahulu." },
-        { status: 401 }
-      );
+    if (!process.env.BLOB_READ_WRITE_TOKEN || !process.env.BLOB_STORE_HOSTNAME) {
+      return NextResponse.json({ error: "Penyimpanan gambar belum dikonfigurasi." }, { status: 503 });
     }
 
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-
-    if (!file) {
-      return NextResponse.json(
-        { error: "Tidak ada file gambar yang diunggah." },
-        { status: 400 }
-      );
+    const body = (await request.json()) as HandleUploadBody;
+    if (body.type === "blob.generate-client-token") {
+      const session = await getSession();
+      if (!session || !hasValidOrigin(request)) {
+        return NextResponse.json({ error: "Akses tidak diizinkan." }, { status: 401 });
+      }
     }
 
-    // Validate mime type
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      return NextResponse.json(
-        { error: "Tipe file tidak valid. Hanya file gambar (.jpg, .jpeg, .png, .webp) yang diizinkan." },
-        { status: 400 }
-      );
-    }
+    const response = await handleUpload({
+      request,
+      body,
+      onBeforeGenerateToken: async (pathname) => {
+        if (!pathname.startsWith("school-media/")) {
+          throw new Error("Lokasi unggahan tidak valid.");
+        }
 
-    // Validate size
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: "Ukuran file terlalu besar! Maksimal ukuran gambar adalah 5 MB." },
-        { status: 400 }
-      );
-    }
+        return {
+          allowedContentTypes: ALLOWED_MIME_TYPES,
+          maximumSizeInBytes: MAX_FILE_SIZE,
+          addRandomSuffix: true,
+          allowOverwrite: false,
+        };
+      },
+    });
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Sanitize filename
-    const ext = path.extname(file.name) || ".jpg";
-    const cleanBaseName = path.basename(file.name, ext).replace(/[^a-zA-Z0-9_-]/g, "_");
-    const filename = `${Date.now()}_${cleanBaseName}${ext}`;
-
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadsDir, { recursive: true });
-
-    const filePath = path.join(uploadsDir, filename);
-    await writeFile(filePath, buffer);
-
-    const publicUrl = `/uploads/${filename}`;
-    return NextResponse.json({ success: true, url: publicUrl });
+    return NextResponse.json(response);
   } catch (error) {
-    console.error("Upload error:", error);
-    return NextResponse.json(
-      { error: "Gagal mengunggah gambar. Silakan coba lagi." },
-      { status: 500 }
-    );
+    console.error("Upload token error:", error);
+    return NextResponse.json({ error: "Gagal menyiapkan unggahan gambar." }, { status: 400 });
   }
+}
+
+export async function DELETE(request: Request) {
+  const session = await getSession();
+  if (!session || !hasValidOrigin(request)) {
+    return NextResponse.json({ error: "Akses tidak diizinkan." }, { status: 401 });
+  }
+
+  const data = await request.json().catch(() => null);
+  if (!data || !isBlobUrl(data.url)) {
+    return NextResponse.json({ error: "URL gambar tidak valid." }, { status: 400 });
+  }
+
+  await deleteBlobIfUnused(data.url);
+  return NextResponse.json({ success: true });
 }

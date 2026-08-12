@@ -5,6 +5,8 @@ import { ArrowLeft, ArrowRight, CalendarBlank, Star } from "@phosphor-icons/reac
 import type { Swiper as SwiperInstance } from "swiper";
 import { A11y, Autoplay, Keyboard, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { formatNewsDate } from "@/lib/news";
+import Image from "next/image";
 
 export type PublicNewsItem = {
   id?: string;
@@ -46,7 +48,14 @@ export function SchoolNewsCarousel({ items }: SchoolNewsCarouselProps) {
           <SwiperSlide key={item.id || item.title}>
             <article className="news-card-public">
               <div className="news-card-media-box">
-                <img src={item.image} alt={item.title} className="news-card-image" />
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) 50vw, 33vw"
+                  className="news-card-image"
+                  unoptimized={item.image.startsWith("/uploads/")}
+                />
                 <span className="news-card-category-badge">{item.category}</span>
                 {item.featured && (
                   <span className="news-card-featured-badge">
@@ -58,7 +67,7 @@ export function SchoolNewsCarousel({ items }: SchoolNewsCarouselProps) {
               <div className="news-card-content">
                 <div className="news-card-date">
                   <CalendarBlank size={15} />
-                  <span>{item.date}</span>
+                  <span>{formatNewsDate(item.date)}</span>
                 </div>
                 <h3 className="news-card-title">{item.title}</h3>
                 <p className="news-card-excerpt">{item.excerpt}</p>

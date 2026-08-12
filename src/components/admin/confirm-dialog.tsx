@@ -39,20 +39,21 @@ export function ConfirmDialog({
 
   return (
     <div className="confirm-dialog-backdrop">
-      <div className="confirm-dialog-box animate-pop-in">
+      <div className="confirm-dialog-box animate-pop-in" role="alertdialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-message">
         <button
           type="button"
           onClick={onClose}
           className="confirm-dialog-close"
           disabled={isLoading}
+          aria-label="Tutup dialog konfirmasi"
         >
           <X size={18} weight="bold" />
         </button>
 
         <div className="confirm-dialog-header">
           <div className={`confirm-icon-wrapper ${variant}`}>{renderIcon()}</div>
-          <h3>{title}</h3>
-          <p>{message}</p>
+          <h3 id="confirm-dialog-title">{title}</h3>
+          <p id="confirm-dialog-message">{message}</p>
         </div>
 
         <div className="confirm-dialog-actions">

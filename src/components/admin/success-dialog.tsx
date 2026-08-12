@@ -30,7 +30,7 @@ export function SuccessDialog({
 
   return (
     <div className="toast-notification-backdrop">
-      <div className="toast-notification-card animate-toast-slide">
+      <div className="toast-notification-card animate-toast-slide" role="status" aria-live="polite">
         <CheckCircle size={26} weight="fill" className="toast-icon-green" />
         <span className="toast-message-text">{message}</span>
       </div>

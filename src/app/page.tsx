@@ -2,7 +2,6 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowSquareOut,
-  BookOpenText,
   Clock,
   EnvelopeSimple,
   MapPin,
@@ -11,6 +10,7 @@ import {
   UsersThree,
 } from "@phosphor-icons/react/ssr";
 import Image from "next/image";
+import { FacilityPhotoCarousel } from "@/components/facility-photo-carousel";
 import { HeroMediaCarousel } from "@/components/hero-media-carousel";
 import { MediaPlaceholder } from "@/components/media-placeholder";
 import { SchoolGalleryCarousel } from "@/components/school-gallery-carousel";
@@ -30,6 +30,7 @@ import { db } from "@/lib/db";
 import {
   contact,
   extracurriculars,
+  facilityPhotos,
   facilities,
   gallery as initialGallery,
   heroSlides,
@@ -51,7 +52,7 @@ export default async function Home() {
       orderBy: { createdAt: "desc" },
     });
     if (dbNews.length > 0) {
-      const sortedDbNews = [...dbNews].sort((a: any, b: any) => {
+      const sortedDbNews = [...dbNews].sort((a, b) => {
         const orderA = a.featuredOrder || 0;
         const orderB = b.featuredOrder || 0;
         if (orderA > 0 && orderB > 0) return orderA - orderB;
@@ -60,7 +61,7 @@ export default async function Home() {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
 
-      newsList = sortedDbNews.map((item: any) => ({
+      newsList = sortedDbNews.map((item) => ({
         id: item.id,
         title: item.title,
         category: item.category,
@@ -76,7 +77,7 @@ export default async function Home() {
       orderBy: { createdAt: "desc" },
     });
     if (dbGallery.length > 0) {
-      galleryList = dbGallery.map((item: any) => ({
+      galleryList = dbGallery.map((item) => ({
         label: item.label,
         category: item.category,
         src: item.src,
@@ -238,26 +239,7 @@ export default async function Home() {
               direction="right"
               scrollParallax={24}
             >
-              <div className="facility-media-mosaic">
-                <MediaPlaceholder
-                  label="Foto kegiatan di ruang kelas"
-                  src="/images/hero/foto belajar dikelas.png"
-                  className="facility-photo facility-photo-main"
-                  sizes="(max-width: 767px) calc(100vw - 64px), (max-width: 1180px) 34vw, 430px"
-                />
-                <MediaPlaceholder
-                  label="Foto area kebun dan lingkungan sekolah"
-                  src="/images/hero/foto dikebun.png"
-                  className="facility-photo facility-photo-library"
-                  sizes="(max-width: 767px) 45vw, (max-width: 1180px) 24vw, 300px"
-                />
-                <MediaPlaceholder
-                  label="Foto kegiatan siswa dan Pramuka"
-                  src="/images/hero/foto pramuka.png"
-                  className="facility-photo facility-photo-activity"
-                  sizes="(max-width: 767px) 45vw, (max-width: 1180px) 24vw, 300px"
-                />
-              </div>
+              <FacilityPhotoCarousel items={facilityPhotos} />
               <Reveal className="facility-accent" direction="up" delay={0.38} amount={0.1} spring>
                 <Image
                   src="/images/brand/logo-sdn-danabhakti-full.webp"
