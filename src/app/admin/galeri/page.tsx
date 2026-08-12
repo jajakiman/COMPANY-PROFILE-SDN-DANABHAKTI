@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus, PencilSimple, Trash, ImageSquare } from "@phosphor-icons/react";
 import { GalleryModal, type GalleryData } from "@/components/admin/gallery-modal";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { SuccessDialog } from "@/components/admin/success-dialog";
 
 export default function AdminGaleriPage() {
   const [galleryList, setGalleryList] = useState<GalleryData[]>([]);
@@ -16,6 +17,11 @@ export default function AdminGaleriPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [photoToDelete, setPhotoToDelete] = useState<{ id: string; label: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Success dialog states
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [successTitle, setSuccessTitle] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const fetchGallery = async () => {
     setLoading(true);
@@ -46,6 +52,16 @@ export default function AdminGaleriPage() {
     setModalOpen(true);
   };
 
+  const handleModalSuccess = () => {
+    fetchGallery();
+    if (selectedGallery) {
+      setSuccessMessage("Foto galeri berhasil disimpan!");
+    } else {
+      setSuccessMessage("Foto galeri berhasil diupload!");
+    }
+    setSuccessDialogOpen(true);
+  };
+
   const promptDelete = (id: string, label: string) => {
     setPhotoToDelete({ id, label });
     setDeleteDialogOpen(true);
@@ -61,6 +77,8 @@ export default function AdminGaleriPage() {
         fetchGallery();
         setDeleteDialogOpen(false);
         setPhotoToDelete(null);
+        setSuccessMessage("Foto galeri berhasil dihapus!");
+        setSuccessDialogOpen(true);
       } else {
         alert("Gagal menghapus foto.");
       }
@@ -166,7 +184,7 @@ export default function AdminGaleriPage() {
       <GalleryModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSuccess={fetchGallery}
+        onSuccess={handleModalSuccess}
         initialData={selectedGallery}
       />
 
@@ -184,6 +202,13 @@ export default function AdminGaleriPage() {
           setDeleteDialogOpen(false);
           setPhotoToDelete(null);
         }}
+      />
+
+      {/* Auto-Dismiss Toast Notification (2 Seconds, Zero Button Clicks) */}
+      <SuccessDialog
+        isOpen={successDialogOpen}
+        message={successMessage}
+        onClose={() => setSuccessDialogOpen(false)}
       />
     </div>
   );

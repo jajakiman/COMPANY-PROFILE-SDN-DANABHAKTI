@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus, PencilSimple, Trash, Newspaper, Star, CalendarBlank } from "@phosphor-icons/react";
 import { NewsModal, type NewsData } from "@/components/admin/news-modal";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { SuccessDialog } from "@/components/admin/success-dialog";
 
 export default function AdminBeritaPage() {
   const [newsList, setNewsList] = useState<NewsData[]>([]);
@@ -15,6 +16,11 @@ export default function AdminBeritaPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [newsToDelete, setNewsToDelete] = useState<{ id: string; title: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Success dialog states
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [successTitle, setSuccessTitle] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const fetchNews = async () => {
     setLoading(true);
@@ -45,6 +51,16 @@ export default function AdminBeritaPage() {
     setModalOpen(true);
   };
 
+  const handleModalSuccess = () => {
+    fetchNews();
+    if (selectedNews) {
+      setSuccessMessage("Berita berhasil disimpan!");
+    } else {
+      setSuccessMessage("Berita berhasil ditambahkan!");
+    }
+    setSuccessDialogOpen(true);
+  };
+
   const promptDelete = (id: string, title: string) => {
     setNewsToDelete({ id, title });
     setDeleteDialogOpen(true);
@@ -60,6 +76,8 @@ export default function AdminBeritaPage() {
         fetchNews();
         setDeleteDialogOpen(false);
         setNewsToDelete(null);
+        setSuccessMessage("Berita berhasil dihapus!");
+        setSuccessDialogOpen(true);
       } else {
         alert("Gagal menghapus berita.");
       }
@@ -156,7 +174,7 @@ export default function AdminBeritaPage() {
       <NewsModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSuccess={fetchNews}
+        onSuccess={handleModalSuccess}
         initialData={selectedNews}
         allNewsList={newsList}
       />
@@ -175,6 +193,13 @@ export default function AdminBeritaPage() {
           setDeleteDialogOpen(false);
           setNewsToDelete(null);
         }}
+      />
+
+      {/* Auto-Dismiss Toast Notification (2 Seconds, Zero Button Clicks) */}
+      <SuccessDialog
+        isOpen={successDialogOpen}
+        message={successMessage}
+        onClose={() => setSuccessDialogOpen(false)}
       />
     </div>
   );
