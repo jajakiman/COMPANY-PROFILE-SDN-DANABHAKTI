@@ -25,15 +25,26 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 1024px)");
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const compact = window.matchMedia("(min-width: 768px) and (max-width: 1199px)");
+
     const handleViewportChange = () => {
-      if (!desktop.matches) setCollapsed(false);
-      if (desktop.matches) setMobileOpen(false);
+      if (mobile.matches) {
+        setCollapsed(false);
+        return;
+      }
+
+      setMobileOpen(false);
+      setCollapsed(compact.matches);
     };
 
     handleViewportChange();
-    desktop.addEventListener("change", handleViewportChange);
-    return () => desktop.removeEventListener("change", handleViewportChange);
+    mobile.addEventListener("change", handleViewportChange);
+    compact.addEventListener("change", handleViewportChange);
+    return () => {
+      mobile.removeEventListener("change", handleViewportChange);
+      compact.removeEventListener("change", handleViewportChange);
+    };
   }, []);
 
   useEffect(() => {

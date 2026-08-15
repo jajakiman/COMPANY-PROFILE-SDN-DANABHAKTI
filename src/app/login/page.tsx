@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LockKey, User, ArrowLeft, Warning, Eye, EyeSlash } from "@phosphor-icons/react";
+import { SuccessDialog } from "@/components/admin/success-dialog";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -12,6 +13,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -41,8 +44,8 @@ export default function LoginPage() {
         throw new Error(data.error || "Login gagal. Periksa kembali username dan password.");
       }
 
-      router.push("/admin");
-      router.refresh();
+      setSuccessMessage(`Login berhasil. Selamat datang, ${data.user?.name ?? "Admin Sekolah"}.`);
+      setSuccessDialogOpen(true);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Terjadi kesalahan.";
       setErrorMsg(msg);
@@ -87,6 +90,7 @@ export default function LoginPage() {
                 id="username"
                 type="text"
                 required
+                disabled={loading || successDialogOpen}
                 placeholder="Masukkan username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -102,6 +106,7 @@ export default function LoginPage() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 required
+                disabled={loading || successDialogOpen}
                 placeholder="Masukkan password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -110,6 +115,7 @@ export default function LoginPage() {
                 type="button"
                 className="password-toggle-btn"
                 onClick={() => setShowPassword(!showPassword)}
+                disabled={loading || successDialogOpen}
                 title={showPassword ? "Sembunyikan password" : "Tampilkan password"}
               >
                 {showPassword ? (
@@ -121,8 +127,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button type="submit" disabled={loading} className="login-submit-button">
-            {loading ? "Memverifikasi..." : "Login"}
+          <button type="submit" disabled={loading || successDialogOpen} className="login-submit-button">
+            {successDialogOpen ? "Login Berhasil" : loading ? "Memverifikasi..." : "Login"}
           </button>
         </form>
 
@@ -130,6 +136,17 @@ export default function LoginPage() {
           <small>© {new Date().getFullYear()} SDN Danabhakti. Hak Cipta Dilindungi.</small>
         </div>
       </div>
+
+      <SuccessDialog
+        isOpen={successDialogOpen}
+        message={successMessage}
+        duration={1500}
+        onClose={() => {
+          setSuccessDialogOpen(false);
+          router.replace("/admin");
+          router.refresh();
+        }}
+      />
     </div>
   );
 }

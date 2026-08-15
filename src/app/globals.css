@@ -1262,8 +1262,9 @@ h3 {
 }
 
 .confirm-icon-wrapper.logout {
-  background: #f0fdf4;
-  border: 2px solid #bbf7d0;
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  color: #dc2626;
 }
 
 .confirm-dialog-header h3 {
@@ -5164,7 +5165,7 @@ h3 {
 
 .confirm-icon-wrapper.danger { background: #fef2f2; color: #dc2626; }
 .confirm-icon-wrapper.warning { background: #fffbeb; color: #d97706; }
-.confirm-icon-wrapper.logout { background: #ecfdf5; color: #059669; }
+.confirm-icon-wrapper.logout { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
 
 .confirm-dialog-header h3 {
   font-family: var(--font-outfit), Arial, sans-serif;
@@ -5205,11 +5206,16 @@ h3 {
 .admin-btn-confirm.danger { background: #dc2626; }
 .admin-btn-confirm.danger:hover { background: #b91c1c; }
 
-.admin-btn-confirm.logout { background: #059669; }
-.admin-btn-confirm.logout:hover { background: #047857; }
+.admin-btn-confirm.logout { background: #dc2626; }
+.admin-btn-confirm.logout:hover { background: #b91c1c; }
+.admin-btn-confirm.logout:active { background: #991b1b; }
+.admin-btn-confirm.logout:focus-visible {
+  outline: 3px solid rgba(220, 38, 38, 0.3);
+  outline-offset: 3px;
+}
 
-/* Responsive Mobile Layouts (< 900px) */
-@media (max-width: 900px) {
+/* Responsive Mobile Layouts (< 768px) */
+@media (max-width: 767px) {
   .admin-shell {
     flex-direction: column;
   }
@@ -5331,6 +5337,21 @@ h3 {
   .admin-modal-actions button {
     width: 100%;
     justify-content: center;
+  }
+
+  .confirm-dialog-box {
+    padding: 26px 18px 20px;
+    border-radius: 20px;
+  }
+
+  .confirm-dialog-actions {
+    flex-direction: column-reverse;
+  }
+
+  .confirm-dialog-actions button {
+    width: 100%;
+    min-height: 44px;
+    flex: none;
   }
 }
 
@@ -5540,18 +5561,38 @@ body.admin-drawer-open {
   }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
   .admin-shell {
     display: block;
   }
 
   .admin-mobile-header {
     display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: space-between;
     position: sticky;
     top: 0;
     z-index: 90;
     min-height: 68px;
     padding: max(12px, env(safe-area-inset-top)) 20px 12px;
+  }
+
+  .admin-mobile-brand {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .admin-mobile-brand strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .admin-hamburger-btn {
+    margin-left: auto;
+    flex-shrink: 0;
   }
 
   .admin-sidebar,
