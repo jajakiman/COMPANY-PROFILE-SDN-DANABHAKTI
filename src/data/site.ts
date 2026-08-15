@@ -251,7 +251,7 @@ export const contact = {
   address: "Jl. Raya Sapan Gudang RT 03/RW 01, Desa Tegalluar, Kec. Bojongsoang, Kab. Bandung, Jawa Barat 40287",
   phone: whatsapp.displayNumber,
   email: "sdn.danabakti@gmail.com",
-  hours: "Senin - Jumat: 06.30 - 15.15 WIB (5 Hari Kerja)",
+  hours: "Senin - Jumat: 06.30 - 15.15 WIB",
   mapsUrl: "https://maps.app.goo.gl/5tCf1ZwZ8qXHFEwM7",
   mapsEmbedUrl: "https://www.google.com/maps?q=-6.9798795,107.6862452&z=17&output=embed",
 };
