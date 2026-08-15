@@ -4486,8 +4486,10 @@ h3 {
 
 .admin-gallery-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: 1fr;
   gap: 20px;
+  align-items: stretch;
 }
 
 .admin-gallery-card {
@@ -4535,6 +4537,7 @@ h3 {
 
 .admin-gallery-card-actions {
   display: flex;
+  margin-top: auto;
   border-top: 1px solid #f3f4f6;
 }
 
@@ -5407,11 +5410,6 @@ body.admin-drawer-open {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
 }
 
-.admin-gallery-cards-grid {
-  grid-template-columns: repeat(auto-fill, minmax(220px, 240px));
-  justify-content: start;
-}
-
 .admin-news-card-image,
 .admin-gallery-image-box {
   height: auto;
@@ -5542,6 +5540,10 @@ body.admin-drawer-open {
   .admin-stats-column {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .admin-gallery-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @container (min-width: 700px) {
@@ -5558,6 +5560,12 @@ body.admin-drawer-open {
   .admin-stats-column,
   .admin-actions-column {
     grid-template-columns: 1fr;
+  }
+}
+
+@container (min-width: 900px) {
+  .admin-gallery-cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -5732,7 +5740,7 @@ body.admin-drawer-open {
   }
 
   .admin-gallery-cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .admin-form-group input[type="text"],
@@ -5827,5 +5835,4 @@ body.admin-drawer-open {
     padding: 28px 20px;
   }
 }
-
 

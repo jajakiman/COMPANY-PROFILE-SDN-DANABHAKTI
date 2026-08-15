@@ -171,7 +171,13 @@ export default function AdminGaleriPage() {
           {filteredItems.map((item) => (
             <div key={item.id} className="admin-gallery-card">
               <div className="admin-gallery-image-box">
-                <Image src={item.src} alt={item.label} fill sizes="(max-width: 639px) calc(100vw - 32px), 280px" unoptimized />
+                <Image
+                  src={item.src}
+                  alt={item.label}
+                  fill
+                  sizes="(max-width: 559px) calc(100vw - 32px), (max-width: 1199px) calc(50vw - 48px), 380px"
+                  unoptimized
+                />
                 <span className="admin-gallery-category-badge">{item.category}</span>
               </div>
 
