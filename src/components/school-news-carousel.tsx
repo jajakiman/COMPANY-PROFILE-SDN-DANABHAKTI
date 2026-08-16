@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, CalendarBlank, Star, X } from "@phosphor-icons/react";
 import type { Swiper as SwiperInstance } from "swiper";
 import { A11y, Autoplay, Keyboard, Pagination } from "swiper/modules";
@@ -26,23 +26,41 @@ type SchoolNewsCarouselProps = {
 export function SchoolNewsCarousel({ items }: SchoolNewsCarouselProps) {
   const [swiper, setSwiper] = useState<SwiperInstance | null>(null);
   const [selectedNews, setSelectedNews] = useState<PublicNewsItem | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
   const showArrows = items.length > 3;
 
   useEffect(() => {
-    if (selectedNews) {
-      document.body.style.overflow = "hidden";
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          setSelectedNews(null);
-        }
-      };
-      window.addEventListener("keydown", handleKeyDown);
-      return () => {
-        document.body.style.overflow = "";
-        window.removeEventListener("keydown", handleKeyDown);
-      };
-    }
-  }, [selectedNews]);
+    const dialog = dialogRef.current;
+    if (!dialog || !selectedNews || dialog.open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    if (showArrows) swiper?.autoplay.stop();
+    dialog.showModal();
+    closeButtonRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (dialog.open) dialog.close();
+      if (showArrows) swiper?.autoplay.start();
+    };
+  }, [selectedNews, showArrows, swiper]);
+
+  function openNews(item: PublicNewsItem, opener: HTMLElement) {
+    openerRef.current = opener;
+    setSelectedNews(item);
+  }
+
+  function closeNews() {
+    dialogRef.current?.close();
+  }
+
+  function handleDialogClose() {
+    setSelectedNews(null);
+    openerRef.current?.focus();
+  }
 
   const newsContentText = selectedNews ? (selectedNews.content || selectedNews.excerpt) : "";
 
@@ -68,14 +86,14 @@ export function SchoolNewsCarousel({ items }: SchoolNewsCarouselProps) {
           <SwiperSlide key={item.id || item.title}>
             <article
               className="news-card-public"
-              onClick={() => setSelectedNews(item)}
+              onClick={(event) => openNews(item, event.currentTarget)}
               tabIndex={0}
               role="button"
               aria-label={`Baca detail berita: ${item.title}`}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  setSelectedNews(item);
+                  openNews(item, e.currentTarget);
                 }
               }}
             >
@@ -131,66 +149,69 @@ export function SchoolNewsCarousel({ items }: SchoolNewsCarouselProps) {
         </div>
       )}
 
-      {/* News Detail Modal Popup */}
-      {selectedNews && (
-        <div
-          className="news-detail-modal-overlay"
-          onClick={() => setSelectedNews(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="news-modal-title"
-        >
-          <div
-            className="news-detail-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+      <dialog
+        ref={dialogRef}
+        className="news-detail-dialog"
+        aria-labelledby="news-modal-title"
+        aria-describedby="news-modal-body"
+        onClose={handleDialogClose}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) closeNews();
+        }}
+      >
+        {selectedNews ? (
+          <div className="news-detail-modal-shell">
             <button
+              ref={closeButtonRef}
               type="button"
               className="news-detail-modal-close"
-              onClick={() => setSelectedNews(null)}
+              onClick={closeNews}
               aria-label="Tutup detail berita"
             >
-              <X size={20} weight="bold" />
+              <X aria-hidden="true" size={22} weight="bold" />
             </button>
 
-            {/* Foto Berita */}
-            <div className="news-detail-modal-media">
-              <Image
-                src={selectedNews.image}
-                alt={selectedNews.title}
-                fill
-                className="news-detail-modal-image"
-                unoptimized={selectedNews.image.startsWith("/uploads/")}
-              />
-              <span className="news-card-category-badge">{selectedNews.category}</span>
-              {selectedNews.featured && (
-                <span className="news-card-featured-badge">
-                  <Star size={12} weight="fill" /> Berita Utama
-                </span>
-              )}
-            </div>
-
-            <div className="news-detail-modal-content">
-              <div className="news-card-date">
-                <CalendarBlank size={16} />
-                <span>{formatNewsDate(selectedNews.date)}</span>
+            <article className="news-detail-modal">
+              <div className="news-detail-modal-media">
+                <Image
+                  src={selectedNews.image}
+                  alt={selectedNews.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 680px"
+                  className="news-detail-modal-image"
+                  unoptimized={selectedNews.image.startsWith("/uploads/")}
+                />
+                <span className="news-card-category-badge">{selectedNews.category}</span>
+                {selectedNews.featured && (
+                  <span className="news-card-featured-badge">
+                    <Star size={12} weight="fill" /> Berita Utama
+                  </span>
+                )}
               </div>
 
-              {/* Judul Berita */}
-              <h2 id="news-modal-title" className="news-detail-modal-title">
-                {selectedNews.title}
-              </h2>
+              <div className="news-detail-modal-content">
+                <div className="news-card-date">
+                  <CalendarBlank size={16} />
+                  <span>{formatNewsDate(selectedNews.date)}</span>
+                </div>
 
-              {/* Isi Berita (Tanpa Excerpt) */}
-              <div className="news-detail-modal-body">
-                {newsContentText.split("\n\n").map((paragraph, idx) => (
-                  <p key={idx}>{paragraph}</p>
-                ))}
+                <h2 id="news-modal-title" className="news-detail-modal-title">
+                  {selectedNews.title}
+                </h2>
+
+                <div id="news-modal-body" className="news-detail-modal-body">
+                  {newsContentText
+                    .split(/\r?\n\s*\r?\n/)
+                    .filter((paragraph) => paragraph.trim())
+                    .map((paragraph, index) => (
+                      <p key={index}>{paragraph.trim()}</p>
+                    ))}
+                </div>
               </div>
-            </div>
+            </article>
           </div>
-        </div>
-      )}
+        ) : null}
+      </dialog>
     </div>
   );
 }

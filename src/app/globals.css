@@ -3318,6 +3318,29 @@ h3 {
   width: 100%;
 }
 
+.news-swiper {
+  padding-bottom: 54px;
+  --swiper-pagination-bullet-horizontal-gap: 5px;
+  --swiper-pagination-bullet-inactive-color: #8ba087;
+  --swiper-pagination-bullet-inactive-opacity: 0.42;
+  --swiper-pagination-color: var(--primary-dark);
+}
+
+.news-swiper .swiper-pagination {
+  bottom: 12px;
+}
+
+.news-swiper .swiper-pagination-bullet {
+  width: 7px;
+  height: 7px;
+  transition: width 180ms ease, border-radius 180ms ease, background-color 180ms ease;
+}
+
+.news-swiper .swiper-pagination-bullet-active {
+  width: 24px;
+  border-radius: 4px;
+}
+
 .news-card-public {
   display: flex;
   flex-direction: column;
@@ -5854,27 +5877,37 @@ body.admin-drawer-open {
   outline-offset: 4px;
 }
 
-/* Public News Detail Modal Popup */
-.news-detail-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+/* Public News Detail Modal */
+.news-detail-dialog {
+  width: min(calc(100% - 40px), 680px);
+  max-width: none;
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.news-detail-dialog::backdrop {
   background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(8px);
   animation: newsModalFadeIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.news-detail-modal-shell {
+  position: relative;
+  padding-top: 56px;
+}
+
 .news-detail-modal {
   position: relative;
   width: 100%;
-  max-width: 680px;
-  max-height: 85vh;
+  max-height: calc(100dvh - 92px);
   display: flex;
   flex-direction: column;
+  margin: 0;
   background: #ffffff;
   border-radius: 24px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
@@ -5884,27 +5917,33 @@ body.admin-drawer-open {
 
 .news-detail-modal-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 0;
+  right: 0;
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
-  color: #1f2937;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--primary-dark, #064e3b);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-  transition: all 150ms ease;
+  box-shadow: 0 8px 24px rgba(3, 16, 8, 0.24);
+  backdrop-filter: blur(8px);
+  transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
 .news-detail-modal-close:hover {
   background: #ffffff;
   color: #059669;
-  transform: scale(1.08);
+  transform: translateY(-2px);
+}
+
+.news-detail-modal-close:active {
+  transform: scale(0.97);
 }
 
 .news-detail-modal-media {
@@ -5966,13 +6005,23 @@ body.admin-drawer-open {
 
 /* Responsive Styles for Mobile Devices */
 @media (max-width: 640px) {
-  .news-detail-modal-overlay {
-    padding: 12px;
-    align-items: flex-end;
+  .news-detail-dialog {
+    width: 100%;
+    max-height: 100dvh;
+    margin: auto auto 0;
+  }
+
+  .news-detail-modal-shell {
+    padding-top: calc(52px + env(safe-area-inset-top));
+  }
+
+  .news-detail-modal-close {
+    top: env(safe-area-inset-top);
+    right: 12px;
   }
 
   .news-detail-modal {
-    max-height: 90vh;
+    max-height: calc(100dvh - 52px - env(safe-area-inset-top));
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     border-top-left-radius: 24px;
@@ -5984,7 +6033,7 @@ body.admin-drawer-open {
   }
 
   .news-detail-modal-content {
-    padding: 20px 20px 28px;
+    padding: 20px 20px calc(28px + env(safe-area-inset-bottom));
   }
 
   .news-detail-modal-title {
@@ -5995,6 +6044,21 @@ body.admin-drawer-open {
   .news-detail-modal-body {
     font-size: 0.95rem;
     line-height: 1.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-card-public,
+  .news-card-image,
+  .news-detail-modal,
+  .news-detail-modal-close,
+  .news-swiper .swiper-pagination-bullet {
+    transition: none;
+  }
+
+  .news-detail-dialog::backdrop,
+  .news-detail-modal {
+    animation: none;
   }
 }
 
