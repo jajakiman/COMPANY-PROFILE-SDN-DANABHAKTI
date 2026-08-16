@@ -67,6 +67,7 @@ export default async function Home() {
         category: item.category,
         date: item.date,
         excerpt: item.excerpt,
+        content: item.content || item.excerpt,
         image: item.image,
         featured: Boolean(item.featuredOrder && item.featuredOrder > 0),
         featuredOrder: item.featuredOrder || 0,

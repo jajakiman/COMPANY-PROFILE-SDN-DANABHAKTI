@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeft, ArrowRight, CalendarBlank, Star } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, CalendarBlank, Star, X } from "@phosphor-icons/react";
 import type { Swiper as SwiperInstance } from "swiper";
 import { A11y, Autoplay, Keyboard, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -14,6 +14,7 @@ export type PublicNewsItem = {
   category: string;
   date: string;
   excerpt: string;
+  content?: string;
   image: string;
   featured?: boolean;
 };
@@ -24,7 +25,26 @@ type SchoolNewsCarouselProps = {
 
 export function SchoolNewsCarousel({ items }: SchoolNewsCarouselProps) {
   const [swiper, setSwiper] = useState<SwiperInstance | null>(null);
+  const [selectedNews, setSelectedNews] = useState<PublicNewsItem | null>(null);
   const showArrows = items.length > 3;
+
+  useEffect(() => {
+    if (selectedNews) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          setSelectedNews(null);
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [selectedNews]);
+
+  const newsContentText = selectedNews ? (selectedNews.content || selectedNews.excerpt) : "";
 
   return (
     <div className="news-carousel-wrapper">
@@ -46,7 +66,19 @@ export function SchoolNewsCarousel({ items }: SchoolNewsCarouselProps) {
       >
         {items.map((item) => (
           <SwiperSlide key={item.id || item.title}>
-            <article className="news-card-public">
+            <article
+              className="news-card-public"
+              onClick={() => setSelectedNews(item)}
+              tabIndex={0}
+              role="button"
+              aria-label={`Baca detail berita: ${item.title}`}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelectedNews(item);
+                }
+              }}
+            >
               <div className="news-card-media-box">
                 <Image
                   src={item.image}
@@ -98,6 +130,68 @@ export function SchoolNewsCarousel({ items }: SchoolNewsCarouselProps) {
           </button>
         </div>
       )}
+
+      {/* News Detail Modal Popup */}
+      {selectedNews && (
+        <div
+          className="news-detail-modal-overlay"
+          onClick={() => setSelectedNews(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="news-modal-title"
+        >
+          <div
+            className="news-detail-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="news-detail-modal-close"
+              onClick={() => setSelectedNews(null)}
+              aria-label="Tutup detail berita"
+            >
+              <X size={20} weight="bold" />
+            </button>
+
+            {/* Foto Berita */}
+            <div className="news-detail-modal-media">
+              <Image
+                src={selectedNews.image}
+                alt={selectedNews.title}
+                fill
+                className="news-detail-modal-image"
+                unoptimized={selectedNews.image.startsWith("/uploads/")}
+              />
+              <span className="news-card-category-badge">{selectedNews.category}</span>
+              {selectedNews.featured && (
+                <span className="news-card-featured-badge">
+                  <Star size={12} weight="fill" /> Berita Utama
+                </span>
+              )}
+            </div>
+
+            <div className="news-detail-modal-content">
+              <div className="news-card-date">
+                <CalendarBlank size={16} />
+                <span>{formatNewsDate(selectedNews.date)}</span>
+              </div>
+
+              {/* Judul Berita */}
+              <h2 id="news-modal-title" className="news-detail-modal-title">
+                {selectedNews.title}
+              </h2>
+
+              {/* Isi Berita (Tanpa Excerpt) */}
+              <div className="news-detail-modal-body">
+                {newsContentText.split("\n\n").map((paragraph, idx) => (
+                  <p key={idx}>{paragraph}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
