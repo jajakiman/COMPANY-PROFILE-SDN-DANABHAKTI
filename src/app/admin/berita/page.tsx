@@ -167,7 +167,7 @@ export default function AdminBeritaPage() {
                     <span>{formatNewsDate(item.date)}</span>
                   </div>
                   <h3>{item.title}</h3>
-                  <p className="admin-news-excerpt">{item.excerpt}</p>
+                  <p className="admin-news-excerpt">{item.content?.trim() || item.excerpt}</p>
                 </div>
 
                 <div className="admin-news-card-actions">
