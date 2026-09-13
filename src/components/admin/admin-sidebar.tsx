@@ -72,7 +72,7 @@ export function AdminSidebar({
             <div className="admin-collapsed-header-box">
               <Link href="/admin" className="admin-brand" onClick={onCloseMobile}>
                 <Image
-                  src="/images/brand/logo-danabhakti-new-removebg.png"
+                  src="/images/brand/logo-danabhakti-new.webp"
                   alt="Logo SDN Danabhakti"
                   width={42}
                   height={42}
@@ -84,7 +84,7 @@ export function AdminSidebar({
             <div className="admin-expanded-header-box">
               <Link href="/admin" className="admin-brand" onClick={onCloseMobile}>
                 <Image
-                  src="/images/brand/logo-danabhakti-new-removebg.png"
+                  src="/images/brand/logo-danabhakti-new.webp"
                   alt="Logo SDN Danabhakti"
                   width={44}
                   height={44}
