@@ -64,7 +64,7 @@ export default function LoginPage() {
 
         <div className="login-header">
           <Image
-            src="/images/brand/logo-sdn-danabhakti-full.webp"
+            src="/images/brand/logo-danabhakti-new.webp"
             alt="Logo SDN Danabhakti"
             width={72}
             height={72}
