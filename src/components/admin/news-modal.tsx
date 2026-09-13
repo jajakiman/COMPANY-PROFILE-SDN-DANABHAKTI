@@ -207,19 +207,20 @@ export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList
           </div>
 
           <div className="admin-form-group">
-            <label htmlFor="news-excerpt">Ringkasan Berita *</label>
+            <label htmlFor="news-excerpt">Ringkasan Cadangan *</label>
             <textarea
               id="news-excerpt"
               required
               rows={2}
-              placeholder="Tuliskan 1-2 kalimat ringkasan berita yang akan tampil di halaman depan"
+              placeholder="Tuliskan ringkasan singkat sebagai fallback berita"
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
             />
+            <small>Digunakan pada kartu berita jika isi berita lengkap belum diisi.</small>
           </div>
 
           <div className="admin-form-group">
-            <label htmlFor="news-content">Isi Berita Lengkap (Opsional)</label>
+            <label htmlFor="news-content">Isi Berita Lengkap (Sumber Utama)</label>
             <textarea
               id="news-content"
               rows={4}
@@ -227,6 +228,7 @@ export function NewsModal({ isOpen, onClose, onSuccess, initialData, allNewsList
               value={content}
               onChange={(e) => setContent(e.target.value)}
             />
+            <small>Jika diisi, teks ini tampil sebagai preview kartu dan isi popup berita.</small>
           </div>
 
           <div className="admin-form-group">
