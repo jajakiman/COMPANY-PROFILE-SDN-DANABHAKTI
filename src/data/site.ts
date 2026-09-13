@@ -243,8 +243,8 @@ export const gallery = [
 const whatsappMessage = "Halo, saya menghubungi SDN Danabhakti melalui website.";
 
 export const whatsapp = {
-  displayNumber: "0812 2017 8360",
-  url: `https://wa.me/6281220178360?text=${encodeURIComponent(whatsappMessage)}`,
+  displayNumber: "+62 811-2111-983",
+  url: `https://wa.me/628112111983?text=${encodeURIComponent(whatsappMessage)}`,
 };
 
 export const contact = {

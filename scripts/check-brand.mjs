@@ -41,4 +41,8 @@ for (const token of [
   assert.ok(css.toLowerCase().includes(token), `Token belum diterapkan: ${token}`);
 }
 
+const siteData = await readFile("src/data/site.ts", "utf8");
+assert.ok(siteData.includes('displayNumber: "+62 811-2111-983"'), "Nomor WhatsApp tampilan belum diperbarui");
+assert.ok(siteData.includes("https://wa.me/628112111983"), "Redirect WhatsApp belum menggunakan nomor baru");
+
 console.log("Brand asset dan palette contract: PASS");
