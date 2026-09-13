@@ -59,7 +59,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <header className="admin-mobile-header">
         <div className="admin-mobile-brand">
           <Image
-            src="/images/brand/logo-danabhakti-new.webp"
+            src="/images/brand/logo-danabhakti-new-removebg.png"
             alt="Logo SDN Danabhakti"
             width={36}
             height={36}

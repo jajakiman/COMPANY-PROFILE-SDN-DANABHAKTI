@@ -243,7 +243,7 @@ export default async function Home() {
               <FacilityPhotoCarousel items={facilityPhotos} />
               <Reveal className="facility-accent" direction="up" delay={0.38} amount={0.1} spring>
                 <Image
-                  src="/images/brand/logo-danabhakti-new.webp"
+                  src="/images/brand/logo-danabhakti-new-removebg.png"
                   alt=""
                   width={72}
                   height={72}
@@ -462,7 +462,7 @@ export default async function Home() {
               <span className="brand-mark" aria-hidden="true">
                 <Image
                   className="brand-logo"
-                  src="/images/brand/logo-danabhakti-new.webp"
+                  src="/images/brand/logo-danabhakti-new-removebg.png"
                   alt=""
                   width={640}
                   height={640}

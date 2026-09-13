@@ -96,7 +96,7 @@ export function InitialLoader() {
             <span className="initial-loader-mark" aria-hidden="true">
               <Image
                 className="initial-loader-logo"
-                src="/images/brand/logo-danabhakti-new.webp"
+                src="/images/brand/logo-danabhakti-new-removebg.png"
                 alt=""
                 width={640}
                 height={640}
