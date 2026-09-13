@@ -9,8 +9,6 @@ const referencedFiles = [
   "src/app/login/page.tsx",
   "src/components/initial-loader.tsx",
   "src/components/site-header.tsx",
-  "src/components/admin/admin-shell.tsx",
-  "src/components/admin/admin-sidebar.tsx",
 ];
 
 await Promise.all([
@@ -31,6 +29,19 @@ assert.match(
   "Footer belum menggunakan logo berlatar putih",
 );
 assert.equal((home.match(new RegExp(footerLogo.replaceAll("/", "\\/"), "g")) ?? []).length, 1, "Logo berlatar putih hanya boleh digunakan sekali di footer");
+
+for (const [file, expectedCount] of [
+  ["src/components/admin/admin-shell.tsx", 1],
+  ["src/components/admin/admin-sidebar.tsx", 2],
+]) {
+  const source = await readFile(file, "utf8");
+  assert.equal(
+    (source.match(new RegExp(footerLogo.replaceAll("/", "\\/"), "g")) ?? []).length,
+    expectedCount,
+    `${file} belum menggunakan logo berlatar putih pada seluruh konteks admin`,
+  );
+  assert.ok(!source.includes(logo), `${file} masih menggunakan logo transparan`);
+}
 
 const layout = await readFile("src/app/layout.tsx", "utf8");
 for (const iconType of ["icon", "shortcut", "apple"]) {
