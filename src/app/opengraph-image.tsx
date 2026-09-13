@@ -14,8 +14,8 @@ export default function OpenGraphImage() {
           display: "flex",
           alignItems: "center",
           padding: "76px",
-          background: "#fafff7",
-          color: "#17251b",
+          background: "#f7fbff",
+          color: "#16283d",
           fontFamily: "sans-serif",
         }}
       >
@@ -28,8 +28,8 @@ export default function OpenGraphImage() {
               alignItems: "center",
               justifyContent: "center",
               borderRadius: "24px",
-              background: "#facc15",
-              color: "#1a2e1e",
+              background: "#f4be22",
+              color: "#16283d",
               fontSize: "52px",
               fontWeight: 800,
             }}
@@ -37,13 +37,13 @@ export default function OpenGraphImage() {
             SD
           </div>
           <div style={{ display: "flex", flex: 1, flexDirection: "column" }}>
-            <span style={{ marginBottom: "12px", color: "#166534", fontSize: "26px", fontWeight: 700 }}>
+            <span style={{ marginBottom: "12px", color: "#0b2f63", fontSize: "26px", fontWeight: 700 }}>
               Sekolah Dasar Negeri
             </span>
             <span style={{ fontSize: "76px", fontWeight: 800, letterSpacing: "-4px", lineHeight: 1 }}>
               SDN Danabhakti
             </span>
-            <span style={{ marginTop: "22px", color: "#526359", fontSize: "27px" }}>
+            <span style={{ marginTop: "22px", color: "#40566f", fontSize: "27px" }}>
               Tempat tumbuh, belajar, dan berkarya bersama.
             </span>
           </div>

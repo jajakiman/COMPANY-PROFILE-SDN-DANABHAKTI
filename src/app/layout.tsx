@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   applicationName: siteConfig.name,
   icons: {
-    icon: [{ url: "/images/brand/logo-sdn-danabhakti-full.webp", type: "image/webp" }],
+    icon: [{ url: "/images/brand/logo-danabhakti-new.webp", type: "image/webp" }],
   },
   openGraph: {
     title: siteConfig.name,

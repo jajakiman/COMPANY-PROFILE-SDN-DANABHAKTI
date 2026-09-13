@@ -120,7 +120,7 @@ export function SchoolNewsCarousel({ items }: SchoolNewsCarouselProps) {
                   <span>{formatNewsDate(item.date)}</span>
                 </div>
                 <h3 className="news-card-title">{item.title}</h3>
-                <p className="news-card-excerpt">{item.excerpt}</p>
+                <p className="news-card-excerpt">{item.content?.trim() || item.excerpt}</p>
               </div>
             </article>
           </SwiperSlide>
@@ -215,4 +215,3 @@ export function SchoolNewsCarousel({ items }: SchoolNewsCarouselProps) {
     </div>
   );
 }
-
