@@ -2661,8 +2661,13 @@ h3 {
 }
 
 .footer-brand .brand-mark {
-  width: 50px;
-  height: 65px;
+  width: 64px;
+  height: 64px;
+  padding: 7px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--background);
+  box-shadow: 0 8px 20px rgba(3, 16, 40, 0.2);
 }
 
 .footer-grid > div:first-child > p {
@@ -3242,6 +3247,13 @@ h3 {
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 44px;
+  }
+
+  .footer-brand .brand-mark {
+    width: 58px;
+    height: 58px;
+    padding: 6px;
+    border-radius: 16px;
   }
 
   .footer-bottom {

@@ -462,7 +462,7 @@ export default async function Home() {
               <span className="brand-mark" aria-hidden="true">
                 <Image
                   className="brand-logo"
-                  src="/images/brand/logo-danabhakti-new.webp"
+                  src="/images/brand/logo-danabhakti-new-removebg.png"
                   alt=""
                   width={640}
                   height={640}
