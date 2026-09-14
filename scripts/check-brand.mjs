@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 
 const logo = "/images/brand/logo-danabhakti-new-removebg.png";
-const footerLogo = "/images/brand/logo-danabhakti-new.webp";
+const darkSurfaceLogo = "/images/brand/logo-danabhakti-new.webp";
 const referencedFiles = [
   "src/app/layout.tsx",
   "src/app/page.tsx",
@@ -25,10 +25,14 @@ for (const file of referencedFiles) {
 const home = await readFile("src/app/page.tsx", "utf8");
 assert.match(
   home,
-  new RegExp(`footer-brand[\\s\\S]*?src="${footerLogo.replaceAll("/", "\\/")}"`),
-  "Footer belum menggunakan logo berlatar putih",
+  new RegExp(`footer-brand[\\s\\S]*?src="${logo.replaceAll("/", "\\/")}"`),
+  "Footer belum menggunakan logo transparan",
 );
-assert.equal((home.match(new RegExp(footerLogo.replaceAll("/", "\\/"), "g")) ?? []).length, 1, "Logo berlatar putih hanya boleh digunakan sekali di footer");
+assert.doesNotMatch(
+  home.match(/footer-brand[\s\S]*?<\/a>/)?.[0] ?? "",
+  new RegExp(darkSurfaceLogo.replaceAll("/", "\\/")),
+  "Footer masih menggunakan bidang putih bawaan aset",
+);
 
 for (const [file, expectedCount] of [
   ["src/components/admin/admin-shell.tsx", 1],
@@ -36,7 +40,7 @@ for (const [file, expectedCount] of [
 ]) {
   const source = await readFile(file, "utf8");
   assert.equal(
-    (source.match(new RegExp(footerLogo.replaceAll("/", "\\/"), "g")) ?? []).length,
+    (source.match(new RegExp(darkSurfaceLogo.replaceAll("/", "\\/"), "g")) ?? []).length,
     expectedCount,
     `${file} belum menggunakan logo berlatar putih pada seluruh konteks admin`,
   );
@@ -49,6 +53,10 @@ for (const iconType of ["icon", "shortcut", "apple"]) {
 }
 
 const css = await readFile("src/app/globals.css", "utf8");
+const footerLogoPanel = css.match(/\.footer-brand \.brand-mark\s*\{[^}]+\}/)?.[0] ?? "";
+for (const style of ["width: 64px", "height: 64px", "padding: 7px", "border-radius: 18px", "background: var(--background)"]) {
+  assert.ok(footerLogoPanel.includes(style), `Panel logo footer belum memiliki ${style}`);
+}
 for (const token of [
   "--primary-dark: #0b2f63",
   "--primary: #155a96",
